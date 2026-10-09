@@ -12,6 +12,7 @@ import com.ancientcharmoffujianstyle.domain.query.PageQuery;
 import com.ancientcharmoffujianstyle.domain.vo.CheckInCommentVo;
 import com.ancientcharmoffujianstyle.domain.vo.CheckInDtlVo;
 import com.ancientcharmoffujianstyle.domain.vo.CheckInListVo;
+import com.ancientcharmoffujianstyle.domain.vo.CheckInTagVo;
 import com.ancientcharmoffujianstyle.service.ICheckInService;
 import com.ancientcharmoffujianstyle.service.Impl.CheckInInteractionService;
 import com.ancientcharmoffujianstyle.utils.ApiResponse;
@@ -98,6 +99,12 @@ public class CheckInController extends WebController {
         checkInService.removeById(id);
 
         return ApiResponse.success();
+    }
+
+    @GetMapping("/tags")
+    @ApiOperation("查询有打卡记录的非遗标签（按打卡数降序）")
+    public ApiResponse<List<CheckInTagVo>> tags() {
+        return ApiResponse.success(checkInService.listTags());
     }
 
     @PostMapping("/like")

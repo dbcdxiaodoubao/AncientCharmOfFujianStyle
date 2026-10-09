@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.IService;
 import com.ancientcharmoffujianstyle.domain.entity.CheckIn;
 import com.ancientcharmoffujianstyle.domain.vo.CheckInDtlVo;
 import com.ancientcharmoffujianstyle.domain.vo.CheckInListVo;
+import com.ancientcharmoffujianstyle.domain.vo.CheckInTagVo;
 
 import java.util.List;
 
@@ -30,4 +31,10 @@ public interface ICheckInService extends IService<CheckIn> {
      * @return
      */
     CheckInDtlVo dtl(Long id);
+
+    /**
+     * 查询有打卡记录的非遗标签（非遗id + 名称 + 打卡数）
+     * @return
+     */
+    List<CheckInTagVo> listTags();
 }

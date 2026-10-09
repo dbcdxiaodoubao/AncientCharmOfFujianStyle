@@ -1,4 +1,6 @@
 const app = getApp();
+const COLLAPSED_TAG_COUNT = 6;
+const CITY_MAP = { 1: '漳州市', 2: '厦门市', 3: '泉州市', 4: '莆田市', 5: '福州市', 6: '宁德市', 7: '南平市', 8: '三明市', 9: '龙岩市' };
 
 const AVATAR_COLORS = ['#9F6B65', '#C08A6A', '#7C9A92', '#8E7CC3', '#B98B85', '#6A8CAF', '#C99A5B', '#A26D8A'];
 
@@ -26,8 +28,10 @@ function formatMomentTime(value) {
 
 Page({
     data: {
-        activeTab: 'fyId',
-        searchValue: '',
+        tags: [],
+        displayTags: [],
+        tagsExpanded: false,
+        selectedFyId: '',
         pageNum: 1,
         pageSize: 10,
         total: 0,
@@ -42,7 +46,10 @@ Page({
         fyId: '',
         checkInTxt: '',
         tempImagePath: '',
-        fyName: ''
+        fyName: '',
+        fyOptions: [],
+        fySearchKey: '',
+        filteredFyOptions: []
     },
 
     onLoad() {
@@ -50,36 +57,46 @@ Page({
     },
 
     onShow() {
+        this.loadTags();
         this.refreshList();
     },
 
+    // ============ 非遗标签 ============
+    loadTags() {
+        wx.request({
+            url: `${this.data.baseUrl}/check-in/tags`,
+            method: 'GET',
+            success: (res) => {
+                if (res.statusCode === 200 && res.data && (res.data.code === 0 || res.data.code === 200)) {
+                    this.setData({ tags: res.data.data || [] }, () => this.applyTagDisplay());
+                }
+            }
+        });
+    },
+
+    applyTagDisplay() {
+        const { tags, tagsExpanded } = this.data;
+        const displayTags = tagsExpanded ? tags : tags.slice(0, COLLAPSED_TAG_COUNT);
+        this.setData({ displayTags });
+    },
+
+    onToggleTagExpand() {
+        this.setData({ tagsExpanded: !this.data.tagsExpanded }, () => this.applyTagDisplay());
+    },
+
+    onTagTap(e) {
+        const fyId = Number(e.currentTarget.dataset.fyid);
+        const selectedFyId = (this.data.selectedFyId === fyId) ? '' : fyId;
+        this.setData({ selectedFyId, pageNum: 1 }, () => this.refreshList());
+    },
+
+    onAllTagTap() {
+        if (this.data.selectedFyId === '') return;
+        this.setData({ selectedFyId: '', pageNum: 1 }, () => this.refreshList());
+    },
+
     refreshList() {
-        this.setData({
-            pageNum: 1
-        }, () => {
-            this.fetchCheckInList();
-        });
-    },
-
-    switchTab(e) {
-        const tab = e.currentTarget.dataset.tab;
-        this.setData({
-            activeTab: tab,
-            searchValue: '',
-            pageNum: 1
-        }, () => {
-            this.fetchCheckInList();
-        });
-    },
-
-    onSearchInput(e) {
-        const value = e.detail.value.trim();
-        this.setData({
-            searchValue: value,
-            pageNum: 1
-        }, () => {
-            this.fetchCheckInList();
-        });
+        this.setData({ pageNum: 1 }, () => this.fetchCheckInList());
     },
 
     onImageTap(e) {
@@ -105,43 +122,40 @@ Page({
     },
 
     fetchCheckInList() {
-        const { activeTab, searchValue, pageNum, pageSize, baseUrl } = this.data;
+        const { selectedFyId, pageNum, pageSize, baseUrl } = this.data;
         this.setData({ loading: true });
 
-        let apiUrl = '';
-        const requestParams = { pageNum, pageSize };
-
-        if (activeTab === 'fyId') {
-            apiUrl = `${baseUrl}/check-in/byfy`;
-            if (searchValue && !isNaN(searchValue)) {
-                requestParams.fyId = Number(searchValue);
-            }
-        } else {
-            apiUrl = `${baseUrl}/check-in/byuser`;
-            if (searchValue && !isNaN(searchValue)) {
-                requestParams.userId = Number(searchValue);
-            }
+        const params = { pageNum, pageSize };
+        if (selectedFyId) {
+            params.fyId = selectedFyId;
         }
 
         wx.request({
-            url: apiUrl,
+            url: `${baseUrl}/check-in/byfy`,
             method: 'GET',
-            data: requestParams,
+            data: params,
             header: { 'content-type': 'application/x-www-form-urlencoded' },
             success: (res) => {
                 if (res.statusCode === 200) {
                     const { code, rows = [], total = 0 } = res.data;
                     if (code === 0 || code === 200) {
-                        const handleRows = rows.map(item => Object.assign({}, item, avatarFor(item.userName), {
-                            showTime: formatMomentTime(item.createTime),
-                            displayPictureUrl: this.resolveImageUrl(item.pictureUrl),
-                            liked: false,
-                            likeCount: Number(item.likeCount) || 0,
-                            commentCount: Number(item.commentCount) || 0,
-                            showComments: false,
-                            comments: [],
-                            commentsLoaded: false
-                        }));
+                        const handleRows = rows.map(item => {
+                            const likeCount = Number(item.likeCount) || 0;
+                            const commentCount = Number(item.commentCount) || 0;
+                            const baseHeat = Number(item.heatIndex) || 0;
+                            return Object.assign({}, item, avatarFor(item.userName), {
+                                showTime: formatMomentTime(item.createTime),
+                                displayPictureUrl: this.resolveImageUrl(item.pictureUrl),
+                                liked: false,
+                                likeCount,
+                                commentCount,
+                                baseHeat,
+                                heat: baseHeat + likeCount + commentCount,
+                                showComments: false,
+                                comments: [],
+                                commentsLoaded: false
+                            });
+                        });
                         const totalPages = Math.ceil(total / pageSize);
                         this.setData({
                             checkInList: handleRows,
@@ -169,41 +183,69 @@ Page({
             wx.showToast({ title: '请先登录', icon: 'none' });
             return;
         }
+        let fyId = '';
+        let fyName = '';
+        if (this.data.selectedFyId) {
+            fyId = this.data.selectedFyId;
+            fyName = this.data.fyName || '';
+            const tag = this.data.tags.find(tagItem => String(tagItem.fyId) === String(this.data.selectedFyId));
+            if (tag) fyName = tag.fyName;
+        }
         this.setData({
             checkInVisible: true,
-            fyId: '',
+            fyId,
+            fyName,
             checkInTxt: '',
             tempImagePath: '',
-            fyName: ''
+            fySearchKey: ''
+        }, () => this.loadFyOptions());
+    },
+
+    loadFyOptions() {
+        if (this.data.fyOptions.length) {
+            this.applyFyFilter();
+            return;
+        }
+        wx.request({
+            url: `${this.data.baseUrl}/map`,
+            method: 'GET',
+            success: (res) => {
+                if (res.statusCode === 200 && res.data && (res.data.code === 0 || res.data.code === 200)) {
+                    const fyOptions = (res.data.data || []).map(item => ({
+                        id: item.id,
+                        name: item.name,
+                        cityName: CITY_MAP[item.city] || ''
+                    }));
+                    this.setData({ fyOptions }, () => this.applyFyFilter());
+                }
+            }
         });
+    },
+
+    applyFyFilter() {
+        const key = (this.data.fySearchKey || '').trim().toLowerCase();
+        const all = this.data.fyOptions || [];
+        const filtered = key ? all.filter(item => (item.name || '').toLowerCase().includes(key)) : all;
+        this.setData({ filteredFyOptions: filtered });
+    },
+
+    onFySearchInput(e) {
+        this.setData({ fySearchKey: e.detail.value }, () => this.applyFyFilter());
+    },
+
+    onSelectFy(e) {
+        this.setData({
+            fyId: e.currentTarget.dataset.id,
+            fyName: e.currentTarget.dataset.name
+        });
+    },
+
+    clearFySelection() {
+        this.setData({ fyId: '', fyName: '' });
     },
 
     closeCheckInModal() {
         this.setData({ checkInVisible: false });
-    },
-
-    inputFyId(e) {
-        const fyId = e.detail.value.trim();
-        this.setData({ fyId });
-
-        if (fyId) {
-            app.request({
-                url: `/map/dtl/${fyId}`,
-                method: 'GET'
-            }).then(res => {
-                if (res.data && res.data.name) {
-                    this.setData({ fyName: res.data.name || '' });
-                } else {
-                    this.setData({ fyName: '' });
-                    wx.showToast({ title: '非遗ID无效', icon: 'none' });
-                }
-            }).catch(() => {
-                this.setData({ fyName: '' });
-                wx.showToast({ title: '获取非遗信息失败', icon: 'none' });
-            });
-        } else {
-            this.setData({ fyName: '' });
-        }
     },
 
     inputCheckInTxt(e) {
@@ -268,6 +310,7 @@ Page({
                 if (data.code === 200 || data.code === 0) {
                     wx.showToast({ title: '打卡成功！', icon: 'success' });
                     this.closeCheckInModal();
+                    this.loadTags();
                     this.refreshList();
                 } else {
                     wx.showToast({ title: data.msg || '打卡失败', icon: 'none' });
@@ -329,10 +372,12 @@ Page({
             data: { checkinId: id, userId },
             success: (res) => {
                 if (res.statusCode === 200 && res.data && (res.data.code === 0 || res.data.code === 200) && res.data.data) {
-                    this.updateItem(id, {
-                        liked: !!res.data.data.liked,
-                        likeCount: Number(res.data.data.likeCount) || 0
-                    });
+                    const liked = !!res.data.data.liked;
+                    const likeCount = Number(res.data.data.likeCount) || 0;
+                    const item = this.data.checkInList.find(it => String(it.id) === String(id));
+                    const commentCount = item ? Number(item.commentCount) || 0 : 0;
+                    const baseHeat = item ? Number(item.baseHeat) || 0 : 0;
+                    this.updateItem(id, { liked, likeCount, heat: baseHeat + likeCount + commentCount });
                 } else {
                     wx.showToast({ title: (res.data && res.data.msg) || '操作失败', icon: 'none' });
                 }
@@ -396,7 +441,15 @@ Page({
                     const item = this.data.checkInList.find(it => String(it.id) === String(id));
                     const comments = (item ? item.comments : []).concat([res.data.data]);
                     const commentCount = (item ? Number(item.commentCount) || 0 : 0) + 1;
-                    this.updateItem(id, { comments, commentCount, commentsLoaded: true, showComments: true });
+                    const likeCount = item ? Number(item.likeCount) || 0 : 0;
+                    const baseHeat = item ? Number(item.baseHeat) || 0 : 0;
+                    this.updateItem(id, {
+                        comments,
+                        commentCount,
+                        commentsLoaded: true,
+                        showComments: true,
+                        heat: baseHeat + likeCount + commentCount
+                    });
                     this.setData({ ['commentDraft.' + id]: '' });
                 } else {
                     wx.showToast({ title: (res.data && res.data.msg) || '评论失败', icon: 'none' });

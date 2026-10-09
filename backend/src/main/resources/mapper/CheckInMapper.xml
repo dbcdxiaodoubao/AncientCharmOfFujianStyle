@@ -54,8 +54,7 @@
         </if>
     </select>
 
-    <select id="dtl" resultType="com.ancientcharmoffujianstyle.domain.vo.CheckInDtlVo">
-        SELECT
+    <select id="dtl" resultType="com.ancientcharmoffujianstyle.domain.vo.CheckInDtlVo">        SELECT
         c.id,
         c.picture_url,
         c.txt,
@@ -76,5 +75,22 @@
             WHERE
             c.id = #{id}
         </if>
+    </select>
+
+    <select id="listTags" resultType="com.ancientcharmoffujianstyle.domain.vo.CheckInTagVo">
+        SELECT
+            c.fy_id AS fy_id,
+            f.`name` AS fy_name,
+            COUNT(*) AS `count`
+        FROM
+            check_in AS c
+        INNER JOIN
+            fyinfo AS f
+        ON
+            c.fy_id = f.id
+        GROUP BY
+            c.fy_id, f.`name`
+        ORDER BY
+            `count` DESC, c.fy_id ASC
     </select>
 </mapper>

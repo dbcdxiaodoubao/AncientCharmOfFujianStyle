@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.core.mapper.BaseMapper;
 import com.ancientcharmoffujianstyle.domain.entity.CheckIn;
 import com.ancientcharmoffujianstyle.domain.vo.CheckInDtlVo;
 import com.ancientcharmoffujianstyle.domain.vo.CheckInListVo;
+import com.ancientcharmoffujianstyle.domain.vo.CheckInTagVo;
 import org.apache.ibatis.annotations.Mapper;
 
 
@@ -32,4 +33,10 @@ public interface CheckInMapper extends BaseMapper<CheckIn>{
      * @return
      */
     CheckInDtlVo dtl(Long id);
+
+    /**
+     * 查询有打卡记录的非遗标签（含打卡数量），按打卡数降序
+     * @return
+     */
+    List<CheckInTagVo> listTags();
 }

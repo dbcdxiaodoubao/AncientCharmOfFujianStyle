@@ -4,6 +4,7 @@ import com.baomidou.mybatisplus.extension.service.impl.ServiceImpl;
 import com.ancientcharmoffujianstyle.domain.entity.CheckIn;
 import com.ancientcharmoffujianstyle.domain.vo.CheckInDtlVo;
 import com.ancientcharmoffujianstyle.domain.vo.CheckInListVo;
+import com.ancientcharmoffujianstyle.domain.vo.CheckInTagVo;
 import com.ancientcharmoffujianstyle.mapper.CheckInMapper;
 import com.ancientcharmoffujianstyle.service.ICheckInService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -36,8 +37,7 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
     }
 
     @Override
-    public CheckInDtlVo dtl(Long id) {
-        CheckInDtlVo detail = checkInMapper.dtl(id);
+    public CheckInDtlVo dtl(Long id) {        CheckInDtlVo detail = checkInMapper.dtl(id);
         if (detail != null) {
             // 计算该非遗项目的打卡总热度
             List<CheckInListVo> allForThisFy = checkInMapper.selectListByFy(
@@ -46,6 +46,11 @@ public class CheckInServiceImpl extends ServiceImpl<CheckInMapper, CheckIn> impl
             detail.setVisitCount(allForThisFy.size());
         }
         return detail;
+    }
+
+    @Override
+    public List<CheckInTagVo> listTags() {
+        return checkInMapper.listTags();
     }
 
     /**

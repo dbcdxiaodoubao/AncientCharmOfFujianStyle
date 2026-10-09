@@ -1,14 +1,15 @@
 <view class="feed-page">
-    <!-- 顶部筛选 -->
-    <view class="filter-bar">
-        <view class="tab-switch">
-            <view class="tab {{activeTab === 'fyId' ? 'active' : ''}}" bindtap="switchTab" data-tab="fyId">按非遗</view>
-            <view class="tab {{activeTab === 'userId' ? 'active' : ''}}" bindtap="switchTab" data-tab="userId">按用户</view>
+    <!-- 非遗标签筛选（标签=非遗id+名称，按打卡数降序）-->
+    <view class="tag-bar">
+        <view class="tag {{selectedFyId === '' ? 'active' : ''}}" bindtap="onAllTagTap">全部</view>
+        <view class="tag {{selectedFyId === item.fyId ? 'active' : ''}}"
+              wx:for="{{displayTags}}" wx:key="fyId"
+              data-fyid="{{item.fyId}}" bindtap="onTagTap">
+            <text class="tag-name">{{item.fyName}}</text>
+            <text class="tag-count">{{item.count}}</text>
         </view>
-        <view class="search-box">
-            <text class="search-icon">🔍</text>
-            <input class="search-input" placeholder="{{activeTab === 'fyId' ? '输入非遗ID筛选' : '输入发布者ID筛选'}}"
-                   placeholder-class="search-placeholder" bindinput="onSearchInput" value="{{searchValue}}" type="number" />
+        <view class="tag-more" wx:if="{{tags.length > 6}}" bindtap="onToggleTagExpand">
+            {{tagsExpanded ? '收起 ▲' : '展开更多 ▼'}}
         </view>
     </view>
 
@@ -29,7 +30,7 @@
                 <view class="moment-meta">
                     <text class="moment-time">{{item.showTime}}</text>
                     <text class="moment-fy" wx:if="{{item.fyName}}">#{{item.fyName}}</text>
-                    <text class="moment-heat" wx:if="{{item.heatIndex}}">🔥{{item.heatIndex}}</text>
+                    <text class="moment-heat" wx:if="{{item.heat > 0}}">🔥{{item.heat}}</text>
                 </view>
 
                 <view class="moment-actions">
@@ -81,9 +82,21 @@
         </view>
         <view class="modal-body">
             <view class="form-item">
-                <text class="form-label">非遗ID：</text>
-                <input class="form-input" type="number" value="{{fyId}}" bindinput="inputFyId" />
-                <text class="fy-name-tips" wx:if="{{fyName}}">非遗名称：{{fyName}}</text>
+                <text class="form-label">选择非遗：</text>
+                <view class="fy-selected" wx:if="{{fyName}}">
+                    <text class="fy-selected-name">已选：{{fyName}}</text>
+                    <text class="fy-clear" catchtap="clearFySelection">×</text>
+                </view>
+                <input class="form-input" placeholder="搜索非遗名称" value="{{fySearchKey}}" bindinput="onFySearchInput" />
+                <scroll-view class="fy-options" scroll-y wx:if="{{filteredFyOptions.length > 0}}">
+                    <view class="fy-option {{fyId === item.id ? 'active' : ''}}"
+                          wx:for="{{filteredFyOptions}}" wx:key="id"
+                          data-id="{{item.id}}" data-name="{{item.name}}" bindtap="onSelectFy">
+                        <text class="fy-option-name">{{item.name}}</text>
+                        <text class="fy-option-city" wx:if="{{item.cityName}}">{{item.cityName}}</text>
+                    </view>
+                </scroll-view>
+                <view class="fy-empty" wx:if="{{fySearchKey && filteredFyOptions.length === 0}}">没有找到匹配的非遗</view>
             </view>
             <view class="form-item">
                 <text class="form-label">打卡文本：</text>
