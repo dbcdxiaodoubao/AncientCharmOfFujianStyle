@@ -23,3 +23,22 @@ CREATE TABLE IF NOT EXISTS user_browse_history (
     PRIMARY KEY (id),
     KEY idx_user_browse_history_user_time (user_id, browse_time)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='用户浏览足迹';
+
+CREATE TABLE IF NOT EXISTS check_in_like (
+    id BIGINT NOT NULL AUTO_INCREMENT COMMENT '点赞id',
+    checkin_id BIGINT NOT NULL COMMENT '打卡记录id',
+    user_id BIGINT NOT NULL COMMENT '点赞用户id',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '点赞时间',
+    PRIMARY KEY (id),
+    UNIQUE KEY uk_check_in_like (checkin_id, user_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='打卡点赞';
+
+CREATE TABLE IF NOT EXISTS check_in_comment (
+    id BIGINT NOT NULL AUTO_INCREMENT COMMENT '评论id',
+    checkin_id BIGINT NOT NULL COMMENT '打卡记录id',
+    user_id BIGINT NOT NULL COMMENT '评论用户id',
+    content VARCHAR(500) NOT NULL COMMENT '评论内容',
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP COMMENT '评论时间',
+    PRIMARY KEY (id),
+    KEY idx_check_in_comment (checkin_id, create_time)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COMMENT='打卡评论';

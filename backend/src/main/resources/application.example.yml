@@ -54,3 +54,9 @@ security:
   builtin-admin:
     username: <builtin-admin-username>
     password-hash: <bcrypt-password-hash>
+
+# AI 智能助手（智谱 BigModel，OpenAI 兼容接口）
+ai:
+  api-url: https://open.bigmodel.cn/api/paas/v4/chat/completions
+  api-key: <your-zhipu-api-key>
+  model: glm-4-flash

@@ -7,10 +7,13 @@ import com.ancientcharmoffujianstyle.Mapping.CheckInMapping;
 import com.ancientcharmoffujianstyle.controller.base.WebController;
 import com.ancientcharmoffujianstyle.domain.entity.CheckIn;
 import com.ancientcharmoffujianstyle.domain.query.CheckInQuery;
+import com.ancientcharmoffujianstyle.domain.query.CommentQuery;
 import com.ancientcharmoffujianstyle.domain.query.PageQuery;
+import com.ancientcharmoffujianstyle.domain.vo.CheckInCommentVo;
 import com.ancientcharmoffujianstyle.domain.vo.CheckInDtlVo;
 import com.ancientcharmoffujianstyle.domain.vo.CheckInListVo;
 import com.ancientcharmoffujianstyle.service.ICheckInService;
+import com.ancientcharmoffujianstyle.service.Impl.CheckInInteractionService;
 import com.ancientcharmoffujianstyle.utils.ApiResponse;
 import com.ancientcharmoffujianstyle.utils.PageDataset;
 import com.ancientcharmoffujianstyle.utils.UploadUtil;
@@ -22,7 +25,9 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 @RestController
 @RequestMapping("/check-in")
@@ -34,6 +39,9 @@ public class CheckInController extends WebController {
 
     @Autowired
     UploadUtil uploadUtil;
+
+    @Autowired
+    CheckInInteractionService interactionService;
 
     @GetMapping("/byuser")
     @ApiOperation("查询打卡信息列表(通过发布者id)")
@@ -92,5 +100,56 @@ public class CheckInController extends WebController {
         return ApiResponse.success();
     }
 
+    @PostMapping("/like")
+    @ApiOperation("点赞/取消点赞")
+    public ApiResponse<Map<String, Object>> toggleLike(@RequestParam Long checkinId, @RequestParam Long userId) {
+        try {
+            return ApiResponse.success(interactionService.toggleLike(checkinId, userId));
+        } catch (IllegalArgumentException exception) {
+            return ApiResponse.error(exception.getMessage(), null);
+        }
+    }
 
+    @GetMapping("/liked")
+    @ApiOperation("查询当前用户在指定打卡范围内点赞过的记录id")
+    public ApiResponse<List<Long>> liked(@RequestParam Long userId,
+                                         @RequestParam(required = false) String checkinIds) {
+        return ApiResponse.success(interactionService.likedCheckinIds(userId, parseIds(checkinIds)));
+    }
+
+    @GetMapping("/comments")
+    @ApiOperation("查询打卡评论")
+    public ApiResponse<List<CheckInCommentVo>> comments(@RequestParam Long checkinId) {
+        return ApiResponse.success(interactionService.listComments(checkinId));
+    }
+
+    @PostMapping("/comment")
+    @ApiOperation("发表评论")
+    public ApiResponse<CheckInCommentVo> comment(@RequestBody CommentQuery query) {
+        try {
+            return ApiResponse.success(interactionService.addComment(
+                    query.getCheckinId(), query.getUserId(), query.getContent()));
+        } catch (IllegalArgumentException exception) {
+            return ApiResponse.error(exception.getMessage(), null);
+        }
+    }
+
+    private List<Long> parseIds(String checkinIds) {
+        List<Long> ids = new ArrayList<>();
+        if (checkinIds == null || checkinIds.trim().isEmpty()) {
+            return ids;
+        }
+        for (String part : checkinIds.split(",")) {
+            String value = part.trim();
+            if (value.isEmpty()) {
+                continue;
+            }
+            try {
+                ids.add(Long.valueOf(value));
+            } catch (NumberFormatException ignored) {
+                // 忽略非法id
+            }
+        }
+        return ids;
+    }
 }

@@ -1,0 +1,27 @@
+<view class="chat-container">
+    <scroll-view class="msg-list" scroll-y scroll-into-view="{{scrollToId}}" scroll-with-animation>
+        <view wx:for="{{messages}}" wx:key="key" id="msg-{{index}}" class="msg-row {{item.role}}">
+            <view class="avatar {{item.role}}">{{item.role === 'user' ? '我' : 'AI'}}</view>
+            <view class="bubble">
+                <block wx:if="{{item.role === 'user'}}">
+                    <text>{{item.content}}</text>
+                </block>
+                <block wx:else>
+                    <rich-text wx:if="{{item.content}}" nodes="{{item.html}}"></rich-text>
+                    <text wx:elif="{{loading && index === messages.length - 1}}" class="thinking">正在思考…</text>
+                </block>
+            </view>
+        </view>
+    </scroll-view>
+
+    <view class="quick-row">
+        <view class="quick-chip" wx:for="{{quickPrompts}}" wx:key="*this" data-text="{{item}}" bindtap="onQuickTap">{{item}}</view>
+    </view>
+
+    <view class="input-bar">
+        <input class="chat-input" value="{{inputValue}}" placeholder="问我福建旅游、非遗、路线…"
+               placeholder-class="input-placeholder" bindinput="onInput" bindconfirm="onSend"
+               confirm-type="send" disabled="{{loading}}" />
+        <button class="send-btn" bindtap="onSend" disabled="{{loading || !inputValue}}">发送</button>
+    </view>
+</view>

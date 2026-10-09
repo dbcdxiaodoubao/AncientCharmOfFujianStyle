@@ -43,16 +43,6 @@ Page({
         userList: [],
         loading: false,
         showUserList: false,
-        checkInVisible: false,
-        checkInLoading: false,
-        fyId: '',
-        checkInTxt: '',
-        tempImagePath: '',
-        fyName: '',
-        checkInRecordVisible: false,
-        checkInRecordLoading: false,
-        checkInRecordList: [],
-        deleteLoading: false,
         favoriteList: [],
         favoriteLoading: false,
         favoriteLoaded: false,
@@ -285,12 +275,6 @@ Page({
         return '无';
     },
 
-    resolveImageUrl(pictureUrl) {
-        const normalizedUrl = (pictureUrl || '').replace(/\\/g, '/');
-        if (!normalizedUrl || /^https?:\/\//i.test(normalizedUrl)) return normalizedUrl;
-        return `${this.data.baseUrl}/${normalizedUrl.replace(/^\/+/, '')}`;
-    },
-
     queryUserList(showList = false) {
         if (!this.checkLoginStatus()) return;
         this.setData({ loading: true });
@@ -340,9 +324,7 @@ Page({
                     this.setData({
                         userInfo: { userId: '无', userName: '无', status: '异常' },
                         userList: [],
-                        showList: false,
-                        checkInVisible: false,
-                        checkInRecordVisible: false
+                        showList: false
                     });
                     wx.showToast({ title: '已退出登录', icon: 'success' });
                     setTimeout(() => {
@@ -357,230 +339,8 @@ Page({
         wx.switchTab({ url: '/pages/index/index' });
     },
 
-    openCheckInModal() {
+    goMyCheckIn() {
         if (!this.checkLoginStatus()) return;
-        this.setData({
-            checkInVisible: true,
-            fyId: '',
-            checkInTxt: '',
-            tempImagePath: '',
-            fyName: ''
-        });
-    },
-
-    closeCheckInModal() {
-        this.setData({ checkInVisible: false });
-    },
-
-    inputFyId(e) {
-        const fyId = e.detail.value.trim();
-        this.setData({ fyId });
-
-        if (fyId) {
-            app.request({
-                url: `/map/dtl/${fyId}`,
-                method: 'GET'
-            }).then(res => {
-                if (res.data && res.data.name) {
-                    this.setData({ fyName: res.data.name || '' });
-                } else {
-                    this.setData({ fyName: '' });
-                    wx.showToast({ title: '非遗ID无效', icon: 'none' });
-                }
-            }).catch(() => {
-                this.setData({ fyName: '' });
-                wx.showToast({ title: '获取非遗信息失败', icon: 'none' });
-            });
-        } else {
-            this.setData({ fyName: '' });
-        }
-    },
-
-    inputCheckInTxt(e) {
-        this.setData({ checkInTxt: e.detail.value });
-    },
-
-    chooseCheckInImage() {
-        wx.chooseImage({
-            count: 1,
-            sizeType: ['original', 'compressed'],
-            sourceType: ['album', 'camera'],
-            success: (res) => {
-                this.setData({ tempImagePath: res.tempFilePaths[0] });
-            },
-            fail: (err) => {
-                wx.showToast({ title: '图片选择失败', icon: 'none' });
-            }
-        });
-    },
-
-    uploadCheckIn() {
-        const { fyId, checkInTxt, tempImagePath } = this.data;
-        const userInfo = app.globalData.userInfo || wx.getStorageSync('userInfo');
-
-        console.log("=== 打卡开始 ===");
-        console.log("前端 fyId =", fyId);
-        console.log("前端 userId =", userInfo?.userId);
-
-        if (!userInfo || !userInfo.userId) {
-            wx.showToast({ title: '用户未登录', icon: 'none' });
-            return;
-        }
-
-        const userId = userInfo.userId;
-        const fyIdNum = parseInt(fyId);
-
-        if (isNaN(fyIdNum) || fyIdNum <= 0) {
-            wx.showToast({ title: '非遗ID不正确', icon: 'none' });
-            return;
-        }
-        if (!tempImagePath) {
-            wx.showToast({ title: '请选择图片', icon: 'none' });
-            return;
-        }
-
-        this.setData({ checkInLoading: true });
-
-        wx.uploadFile({
-            url: `${app.globalData.baseUrl}/AncientCharmOfFujianStyle/check-in/upload`,
-            filePath: tempImagePath,
-            name: 'image',
-            formData: {
-                userId: userId,
-                fyId: fyIdNum,
-                txt: checkInTxt.trim()
-            },
-
-            success: (res) => {
-                console.log("后端返回原始数据：", res);
-
-                let data;
-                try {
-                    data = JSON.parse(res.data);
-                } catch (e) {
-                    console.error("解析失败：", e);
-                    wx.showToast({ title: '服务器异常', icon: 'none' });
-                    return;
-                }
-
-                if (data.code === 200 || data.code === 0) {
-                    console.log("======================================");
-                    console.log("打卡成功！");
-                    console.log("用户ID：", userId);
-                    console.log("非遗ID(fyId)：", fyId);
-                    console.log("打卡内容：", checkInTxt.trim());
-                    console.log("后端返回：", data);
-                    console.log("======================================");
-
-                    wx.showToast({ title: '打卡成功！', icon: 'success' });
-                    this.closeCheckInModal();
-                    this.queryMyCheckInRecord();
-                } else {
-                    console.log("打卡失败：", data);
-                    wx.showToast({ title: data.msg || '打卡失败', icon: 'none' });
-                }
-            },
-
-            fail: (err) => {
-                console.log("请求失败：", err);
-                wx.showToast({ title: '上传失败', icon: 'none' });
-            },
-
-            complete: () => {
-                this.setData({ checkInLoading: false });
-            }
-        });
-    },
-
-    queryMyCheckInRecord() {
-        if (!this.checkLoginStatus()) return;
-
-        const userInfo = app.globalData.userInfo;
-        const userIdNum = Number(userInfo.userId);
-
-        if (isNaN(userIdNum) || userIdNum <= 0) {
-            wx.showToast({ title: '用户ID异常', icon: 'none' });
-            return;
-        }
-
-        this.setData({ checkInRecordVisible: true, checkInRecordLoading: true });
-
-        const url = `/check-in/byuser`;
-        app.request({
-            url: url,
-            method: 'GET',
-            data: {
-                userId: userIdNum,
-                pageNum: 1,
-                pageSize: 50
-            }
-        }).then(res => {
-            console.log("我的打卡记录(完整res):", res);
-            const list = res.rows || [];
-
-            const formatList = list.map(item => ({
-                ...item,
-                formatCreateTime: this.formatDate(item.createTime),
-                displayPictureUrl: this.resolveImageUrl(item.pictureUrl)
-            }));
-
-
-            this.setData({
-                checkInRecordList: formatList
-            }, () => {
-            });
-
-            if (formatList.length === 0) {
-                wx.showToast({ title: '暂无打卡记录', icon: 'none' });
-            }
-        }).catch(err => {
-            console.error("打卡请求失败:", err);
-            wx.showToast({ title: '查询失败', icon: 'none' });
-        }).finally(() => {
-            this.setData({ checkInRecordLoading: false });
-        });
-    },
-
-    closeCheckInRecordModal() {
-        this.setData({ checkInRecordVisible: false });
-    },
-
-    handleDeleteCheckIn(e) {
-        const id = e.currentTarget.dataset.checkinId;
-        const that = this;
-        wx.showModal({
-            title: '确认删除',
-            content: '确定删除这条记录？',
-            confirmColor: '#dc3545',
-            success: (res) => {
-                if (res.confirm) that.doDelete(id);
-            }
-        });
-    },
-
-    doDelete(id) {
-        this.setData({ deleteLoading: true });
-        
-        app.request({
-            url: '/check-in',
-            method: 'DELETE',
-            data: { id: id },
-            header: {
-                "Content-Type": "application/x-www-form-urlencoded"
-            }
-        }).then(res => {
-            console.log("删除接口返回:", res);
-            if (res.code === 0 || res.code === 200) {
-                wx.showToast({ title: '删除成功', icon: 'success' });
-                this.queryMyCheckInRecord();
-            } else {
-                wx.showToast({ title: res.msg || '删除失败', icon: 'none' });
-            }
-        }).catch(err => {
-            console.error("删除请求异常:", err);
-            wx.showToast({ title: '网络异常', icon: 'none' });
-        }).finally(() => {
-            this.setData({ deleteLoading: false });
-        });
+        wx.navigateTo({ url: '/pages/myCheckIn/myCheckIn' });
     }
 });

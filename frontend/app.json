@@ -6,7 +6,9 @@
     "pages/userDetail/userDetail",
     "pages/detail/detail",
     "pages/plan/plan",
-    "pages/checkIn/checkIn"
+    "pages/checkIn/checkIn",
+    "pages/aiChat/aiChat",
+    "pages/myCheckIn/myCheckIn"
   ],
   "window": {
     "navigationBarTextStyle": "white",
@@ -50,6 +52,6 @@
   "componentFramework": "glass-easel",
   "lazyCodeLoading": "requiredComponents",
   "networkTimeout": {
-    "request": 10000
+    "request": 60000
   }
 }

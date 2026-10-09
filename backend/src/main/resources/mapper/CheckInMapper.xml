@@ -9,7 +9,9 @@
             c.txt,
             c.create_time,
             f.`name` AS fy_name,
-            s.user_name
+            s.user_name,
+            (SELECT COUNT(*) FROM check_in_like cl WHERE cl.checkin_id = c.id) AS like_count,
+            (SELECT COUNT(*) FROM check_in_comment cc WHERE cc.checkin_id = c.id) AS comment_count
         FROM
             check_in AS c
         INNER JOIN
@@ -33,7 +35,9 @@
             c.txt,
             c.create_time,
             f.`name` AS fy_name,
-            s.user_name
+            s.user_name,
+            (SELECT COUNT(*) FROM check_in_like cl WHERE cl.checkin_id = c.id) AS like_count,
+            (SELECT COUNT(*) FROM check_in_comment cc WHERE cc.checkin_id = c.id) AS comment_count
         FROM
             check_in AS c
         INNER JOIN

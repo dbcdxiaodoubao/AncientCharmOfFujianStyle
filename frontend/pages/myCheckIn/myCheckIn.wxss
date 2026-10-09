@@ -1,0 +1,14 @@
+@import "../checkIn/checkIn.wxss";
+
+.moment-delete {
+    margin-left: auto;
+    font-size: 24rpx;
+    color: #dc3545;
+    padding: 4rpx 16rpx;
+    border: 1rpx solid rgba(220, 53, 69, 0.4);
+    border-radius: 999rpx;
+}
+
+.moment-delete:active {
+    opacity: 0.7;
+}

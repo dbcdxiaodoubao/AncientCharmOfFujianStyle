@@ -1,0 +1,23 @@
+<view class="feed-page">
+    <view class="feed">
+        <view class="feed-status" wx:if="{{loading}}">正在加载…</view>
+        <view class="feed-status" wx:if="{{!loading && list.length === 0}}">你还没有发布过打卡，去打卡墙发一条吧～</view>
+
+        <view class="moment" wx:for="{{list}}" wx:key="id">
+            <view class="moment-avatar" style="background: {{item.avatarColor}};">{{item.avatarText}}</view>
+            <view class="moment-body">
+                <view class="moment-name">{{item.userName || '我'}}</view>
+                <view class="moment-text" wx:if="{{item.txt}}">{{item.txt}}</view>
+                <view class="moment-media" wx:if="{{item.displayPictureUrl}}">
+                    <image class="moment-image" src="{{item.displayPictureUrl}}" mode="widthFix" lazy-load
+                           bindtap="onImageTap" data-image="{{item.displayPictureUrl}}" />
+                </view>
+                <view class="moment-meta">
+                    <text class="moment-time">{{item.showTime}}</text>
+                    <text class="moment-fy" wx:if="{{item.fyName}}">#{{item.fyName}}</text>
+                    <text class="moment-delete" catchtap="onDelete" data-id="{{item.id}}">删除</text>
+                </view>
+            </view>
+        </view>
+    </view>
+</view>

@@ -53,4 +53,10 @@
             </block>
         </view>
     </view>
+
+    <!-- AI 助手悬浮按钮 -->
+    <view class="ai-float-btn" bindtap="onAiChatTap">
+        <text class="ai-float-icon">AI</text>
+        <text class="ai-float-text">问路线</text>
+    </view>
 </view>

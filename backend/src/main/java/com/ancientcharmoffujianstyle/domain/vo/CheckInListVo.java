@@ -26,4 +26,8 @@ public class CheckInListVo {
     private Long fyId;
     @ApiModelProperty("打卡热度指数，值越高表示该非遗越受欢迎")
     private Integer heatIndex;
+    @ApiModelProperty("点赞数")
+    private Integer likeCount;
+    @ApiModelProperty("评论数")
+    private Integer commentCount;
 }

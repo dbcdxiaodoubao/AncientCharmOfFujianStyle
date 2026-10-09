@@ -26,7 +26,6 @@ Page({
         "data": {
           "userId": 1,
           "userName": "admin",
-          "password": "123456",
           "createTime": "2026-02-01T08:40:42.000+00:00",
           "status": 0
         }

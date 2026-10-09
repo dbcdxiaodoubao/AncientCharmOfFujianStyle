@@ -135,5 +135,12 @@ Page({
         wx.navigateTo({
             url: `/pages/detail/detail?id=${heritageId}`
         });
+    },
+
+    // 进入 AI 对话
+    onAiChatTap() {
+        wx.navigateTo({
+            url: '/pages/aiChat/aiChat'
+        });
     }
 });
