@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ancientcharmoffujianstyle.mapper.FyinfoMapper">
+
+    <select id="listByCity" resultType="com.ancientcharmoffujianstyle.domain.vo.FyinfoListVo">
+        SELECT
+            t1.id,
+            t1.`name`,
+            t1.picture_url,
+            t1.city,
+            t1.type,
+            t1.level
+        FROM
+            fyinfo AS t1
+        <if test="city != null and city != 0">
+            WHERE t1.city = #{city}
+        </if>
+    </select>
+</mapper>

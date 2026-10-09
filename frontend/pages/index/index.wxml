@@ -1,0 +1,95 @@
+<!-- 地图容器 -->
+<view class="map-container">
+    <ec-canvas id="mychart-dom-map" canvas-id="mychart-area" ec="{{ ec }}" lazy-load="{{true}}"></ec-canvas>
+</view>
+
+<!-- 筛选栏 -->
+<view class="filter-panel">
+    <view class="tab-nav">
+        <view class="tab-item {{ filterLevel === 'all' ? 'active' : '' }}" data-level="all" bindtap="onFilterTap">全部
+        </view>
+        <view class="tab-item {{ filterLevel === 'world' ? 'active' : '' }}" data-level="world" bindtap="onFilterTap">
+            世界级</view>
+        <view class="tab-item {{ filterLevel === 'national' ? 'active' : '' }}" data-level="national"
+            bindtap="onFilterTap">国家级</view>
+        <view class="tab-item {{ filterLevel === 'provincial' ? 'active' : '' }}" data-level="provincial"
+            bindtap="onFilterTap">省级</view>
+        <view class="tab-item {{ filterLevel === 'city' ? 'active' : '' }}" data-level="city" bindtap="onFilterTap">市级
+        </view>
+        <view class="tab-item {{ filterLevel === 'county' ? 'active' : '' }}" data-level="county" bindtap="onFilterTap">
+            县级</view>
+    </view>
+</view>
+
+<!-- 内容区 -->
+<view class="content-panel">
+    <!-- 搜索框和城市筛选提示 -->
+    <view class="search-container">
+        <input type="text" placeholder="请输入关键字..." value="{{ searchValue }}" bindinput="onSearchInput"
+            class="search-input" />
+        <text class="clear-search" wx:if="{{searchValue}}" bindtap="onSearchClear">×</text>
+
+        <!-- 城市筛选提示 -->
+        <view class="city-filter-tip" wx:if="{{selectedCity}}">
+            <text>当前筛选城市: {{selectedCity}}</text>
+            <text class="clear-city" bindtap="clearCityFilter">清除</text>
+        </view>
+    </view>
+
+    <view class="recommendation-section">
+        <view class="section-heading">
+            <view>
+                <text class="section-title">为你推荐</text>
+                <text class="section-subtitle">{{recommendationUserId ? '根据你的游览足迹' : '发现福建非遗之美'}}</text>
+            </view>
+            <view class="recommendation-toggle" bindtap="toggleRecommendations">
+                <text>{{isRecommendationExpanded ? '收起' : '展开'}}</text>
+                <text class="recommendation-toggle-mark">{{isRecommendationExpanded ? '⌃' : '⌄'}}</text>
+            </view>
+        </view>
+        <view class="recommendation-loading" wx:if="{{isRecommendationLoading}}">推荐加载中...</view>
+        <block wx:if="{{isRecommendationExpanded}}" wx:for="{{recommendationItems}}" wx:key="id">
+            <view class="recommendation-card" data-item="{{item}}" bindtap="onItemTap">
+                <image src="{{item.pictureUrl}}" class="recommendation-image" mode="aspectFill" />
+                <view class="recommendation-content">
+                    <view class="recommendation-topline">
+                        <text class="recommendation-name">{{item.name}}</text>
+                        <text class="recommendation-score">评分 {{item.score}}</text>
+                    </view>
+                    <text class="recommendation-meta">{{item.cityName}} | {{item.levelName}} | {{item.type}}</text>
+                    <view class="reason-list" wx:if="{{item.reasons.length}}">
+                        <text class="reason-item" wx:for="{{item.reasons}}" wx:for-item="reason" wx:key="*this">{{reason}}</text>
+                    </view>
+                </view>
+            </view>
+        </block>
+        <view class="recommendation-empty" wx:if="{{isRecommendationExpanded && !isRecommendationLoading && recommendationItems.length === 0}}">暂无推荐，去地图中发现非遗项目吧</view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-tip" wx:if="{{isLoading}}">
+        <text>加载中...</text>
+    </view>
+
+    <!-- 列表 -->
+    <block wx:for="{{ filteredItems }}" wx:key="id">
+        <view class="item-card" data-item="{{item}}" bindtap="onItemTap">
+            <image src="{{item.pictureUrl}}" class="item-image"
+                mode="aspectFill" />
+            <view class="item-content">
+                <text class="item-title">{{ item.name }}</text>
+                <text class="item-info">{{ item.cityName }} | {{ item.level }}</text>
+            </view>
+        </view>
+    </block>
+
+    <!-- 无数据提示 -->
+    <view class="empty-tip" wx:if="{{!isLoading && filteredItems.length === 0}}">
+        <text>暂无数据</text>
+    </view>
+</view>
+
+<!-- 加载遮罩 -->
+<view class="loading-mask" wx:if="{{showLoading}}">
+    <view class="loading-text">{{loadingText}}</view>
+</view>

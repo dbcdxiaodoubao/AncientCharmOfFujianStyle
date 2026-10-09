@@ -1,0 +1,66 @@
+<view class="container">
+    <!-- 城市选择区 -->
+    <view class="city-select-panel">
+        <view class="select-item">
+            <text class="label">出发城市：</text>
+            <picker mode="selector" range="{{cityList}}" range-key="name" value="{{startCityIndex}}" bindchange="onStartCityChange">
+                <view class="picker-text">
+                    {{selectedStartCity.name || '请选择'}}
+                </view>
+            </picker>
+        </view>
+        <view class="select-item">
+            <text class="label">结束城市：</text>
+            <picker mode="selector" range="{{cityList}}" range-key="name" value="{{endCityIndex}}" bindchange="onEndCityChange">
+                <view class="picker-text">
+                    {{selectedEndCity.name || '请选择'}}
+                </view>
+            </picker>
+        </view>
+        <button class="plan-btn" bindtap="onPlanTap" loading="{{isLoading}}">
+            生成路线
+        </button>
+    </view>
+
+    <!-- 路线展示区（匹配设计图布局） -->
+    <view class="route-panel" wx:if="{{hasPlanned}}">
+        <!-- 加载状态 -->
+        <view class="loading-tip" wx:if="{{isLoading}}">
+            <text>路线规划中...</text>
+        </view>
+
+        <!-- 无数据提示 -->
+        <view class="empty-tip" wx:if="{{!isLoading && routeList.length === 0}}">
+            <text>暂无规划路线数据</text>
+        </view>
+
+        <!-- 多站路线卡片（核心：匹配设计图的第X站布局） -->
+        <block wx:for="{{routeList}}" wx:key="id" wx:if="{{!isLoading && routeList.length > 0}}">
+            <!-- 第X站标题 -->
+            <view class="station-title">
+                第{{index + 1}}站
+            </view>
+
+            <!-- 信息卡片（添加点击事件，传递id） -->
+            <view class="info-card" bindtap="onRouteCardTap" data-id="{{item.id}}">
+                <view class="info-item">
+                    <text class="info-label">非遗名称：</text>
+                    <text class="info-value">{{item.name}}</text>
+                </view>
+                <view class="info-item">
+                    <text class="info-label">所属城市：</text>
+                    <text class="info-value">{{item.cityName || '未知城市'}}</text>
+                </view>
+                <view class="info-item">
+                    <text class="info-label">级别：</text>
+                    <text class="info-value">{{item.levelName || '未知级别'}}</text>
+                </view>
+                
+                <!-- 图片单独一行，不影响四行信息的紧凑布局 -->
+                <view class="info-item" wx:if="{{item.pictureUrl}}">
+                    <image src="{{'https://122.246.0.213:45333/AncientCharmOfFujianStyle/' + item.pictureUrl}}" class="info-image" mode="aspectFill" />
+                </view>
+            </view>
+        </block>
+    </view>
+</view>

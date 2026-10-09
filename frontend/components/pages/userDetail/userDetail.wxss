@@ -1,0 +1,21 @@
+.user-detail-container {
+    padding: 20rpx;
+  }
+  
+  .user-item {
+    display: flex;
+    padding: 20rpx 0;
+    border-bottom: 1rpx solid #eee;
+  }
+  
+  .label {
+    font-size: 28rpx;
+    color: #666;
+    width: 120rpx;
+  }
+  
+  .value {
+    font-size: 28rpx;
+    color: #333;
+    flex: 1;
+  }

@@ -1,0 +1,192 @@
+<view class="user-detail-container container">
+    <!-- 用户信息展示 -->
+    <view class="info-card">
+        <view class="info-item">
+            <text class="label">用户ID：</text>
+            <text class="value">{{userInfo.userId}}</text>
+        </view>
+        <view class="info-item">
+            <text class="label">用户名：</text>
+            <text class="value">{{userInfo.userName}}</text>
+        </view>
+        <view class="info-item">
+            <text class="label">账号状态：</text>
+            <text class="value">{{userInfo.status}}</text>
+        </view>
+    </view>
+
+    <view class="profile-section">
+        <view class="section-head">
+            <text class="section-title">我的收藏</text>
+            <text class="section-caption">点击查看非遗项目详情</text>
+        </view>
+        <view class="section-loading" wx:if="{{favoriteLoading}}">收藏加载中...</view>
+        <view class="section-empty" wx:elif="{{favoriteLoaded && favoriteList.length === 0}}">暂未收藏非遗项目</view>
+        <view class="favorite-item" wx:for="{{favoriteList}}" wx:key="fyId" bindtap="goFavoriteDetail" data-fy-id="{{item.fyId}}">
+            <text class="favorite-name">{{item.name}}</text>
+            <text class="favorite-arrow">查看 ></text>
+        </view>
+    </view>
+
+    <view class="profile-section">
+        <view class="section-head">
+            <text class="section-title">推荐偏好</text>
+            <text class="section-caption">选择后保存，用于个性化推荐</text>
+        </view>
+        <view class="section-loading" wx:if="{{preferenceLoading}}">偏好加载中...</view>
+        <view wx:else>
+            <text class="preference-label">偏好城市</text>
+            <view class="option-list">
+                <view class="option-chip {{preferenceCity === item.id ? 'selected' : ''}}" wx:for="{{cityOptions}}" wx:key="id" bindtap="selectPreferenceCity" data-city="{{item.id}}">{{item.name}}</view>
+            </view>
+            <text class="preference-label">偏好类别</text>
+            <view class="option-list">
+                <view class="option-chip {{preferenceCategory === item ? 'selected' : ''}}" wx:for="{{categoryOptions}}" wx:key="*this" bindtap="selectPreferenceCategory" data-value="{{item}}">{{item}}</view>
+            </view>
+            <button class="save-preference-btn" bindtap="savePreference" loading="{{preferenceSaving}}" disabled="{{preferenceSaving}}">保存偏好</button>
+        </view>
+    </view>
+    <!-- 功能列表 -->
+    <view class="func-list">
+        <view class="func-item" bindtap="showUserListManual" disabled="{{loading}}">
+            <view class="func-icon userlist-icon"></view>
+            <text class="func-text">用户列表</text>
+            <view class="func-arrow"></view>
+        </view>
+
+        <view class="func-item" bindtap="openCheckInModal" disabled="{{loading}}">
+            <view class="func-icon checkin-icon"></view>
+            <text class="func-text">上传打卡</text>
+            <view class="func-arrow"></view>
+        </view>
+
+        <view class="func-item" bindtap="queryMyCheckInRecord" disabled="{{checkInRecordLoading}}">
+            <view class="func-icon record-icon"></view>
+            <text class="func-text">我的打卡</text>
+            <view class="func-arrow"></view>
+        </view>
+
+        <view class="func-item" bindtap="handleLogout">
+            <view class="func-icon logout-icon"></view>
+            <text class="func-text">退出登录</text>
+            <view class="func-arrow"></view>
+        </view>
+    </view>
+
+    <!-- 用户列表 弹窗模式 -->
+    <view class="modal-mask" wx:if="{{showUserList}}" bindtap="closeUserList"></view>
+    <view class="user-list-modal" wx:if="{{showUserList}}">
+        <view class="list-header">
+            <text class="list-title">用户列表</text>
+            <button class="close-btn" bindtap="closeUserList">×</button>
+        </view>
+
+        <view class="modal-body-scroll">
+            <view class="loading" wx:if="{{loading}}">加载中...</view>
+            <view class="list-item" wx:for="{{userList}}" wx:key="userId">
+                <view class="list-item-row">
+                    <text class="list-label">用户名：</text>
+                    <text class="list-value">{{item.userName}}</text>
+                </view>
+                <view class="list-item-row">
+                    <text class="list-label">用户ID：</text>
+                    <text class="list-value">{{item.userId}}</text>
+                </view>
+                <view class="list-item-row">
+                    <text class="list-label">创建时间：</text>
+                    <text class="list-value">{{item.formatCreateTime}}</text>
+                </view>
+                <view class="list-divider"></view>
+            </view>
+        </view>
+    </view>
+
+    <!-- 打卡弹窗 -->
+    <view class="modal-mask" wx:if="{{checkInVisible}}" bindtap="closeCheckInModal"></view>
+    <view class="check-in-modal" wx:if="{{checkInVisible}}">
+        <view class="modal-header">
+            <text class="modal-title">上传打卡</text>
+            <button class="modal-close" bindtap="closeCheckInModal">×</button>
+        </view>
+        <view class="modal-body">
+            <!-- 非遗ID输入框 -->
+            <view class="form-item">
+                <text class="form-label">非遗ID：</text>
+                <input class="form-input" type="number" value="{{fyId}}" bindinput="inputFyId" />
+                <text class="fy-name-tips" wx:if="{{fyName}}">非遗名称：{{fyName}}</text>
+            </view>
+            <!-- 打卡文本 -->
+            <view class="form-item">
+                <text class="form-label">打卡文本：</text>
+                <textarea class="form-textarea" placeholder="请输入打卡内容" value="{{checkInTxt}}"
+                    bindinput="inputCheckInTxt"></textarea>
+            </view>
+            <!-- 打卡图片 -->
+            <view class="form-item">
+                <text class="form-label">打卡图片：</text>
+                <view class="image-upload">
+                    <button class="choose-img-btn" bindtap="chooseCheckInImage" disabled="{{checkInLoading}}">
+                        {{tempImagePath ? '更换图片' : '选择图片'}}
+                    </button>
+                    <image class="preview-img" src="{{tempImagePath}}" mode="aspectFill" wx:if="{{tempImagePath}}">
+                    </image>
+                </view>
+            </view>
+        </view>
+        <view class="modal-footer">
+            <button class="submit-check-in-btn" bindtap="uploadCheckIn" loading="{{checkInLoading}}"
+                disabled="{{checkInLoading}}">
+                提交打卡
+            </button>
+        </view>
+    </view>
+
+    <view class="modal-mask" wx:if="{{checkInRecordVisible}}" bindtap="closeCheckInRecordModal"></view>
+    <view class="check-in-modal" wx:if="{{checkInRecordVisible}}">
+        <view class="modal-header">
+            <text class="modal-title">我的打卡记录</text>
+            <button class="modal-close" bindtap="closeCheckInRecordModal">×</button>
+        </view>
+        <view class="modal-body" style="max-height: 600rpx; overflow-y: auto;">
+            <view class="loading" wx:if="{{checkInRecordLoading}}">加载中...</view>
+            <view wx:elif="{{checkInRecordList.length === 0}}">
+                <text style="text-align: center; display: block; color: #666; padding: 20rpx 0;">暂无打卡记录</text>
+            </view>
+            <view wx:else>
+                <view class="list-item" wx:for="{{checkInRecordList}}" wx:key="id">
+                    <view class="list-item-row">
+                        <text class="list-label">打卡ID：</text>
+                        <text class="list-value">{{item.id}}</text>
+                    </view>
+                    <view class="list-item-row">
+                        <text class="list-label">非遗名称：</text>
+                        <text class="list-value">{{item.fyName}}</text>
+                    </view>
+                    <view class="list-item-row">
+                        <text class="list-label">打卡文本：</text>
+                        <text class="list-value">{{item.txt}}</text>
+                    </view>
+                    <view class="list-item-row">
+                        <text class="list-label">创建时间：</text>
+                        <text class="list-value">{{item.formatCreateTime}}</text>
+                    </view>
+                    <view class="list-item-row" wx:if="{{item.pictureUrl}}">
+                        <text class="list-label">打卡图片：</text>
+                        <image class="preview-img"
+                            src="{{item.displayPictureUrl}}"
+                            mode="aspectFill" style="width: 150rpx; height: 150rpx;"></image>
+                    </view>
+
+                    <view class="list-item-row" style="justify-content: flex-end; margin-top: 10rpx;">
+                        <button class="delete-btn" bindtap="handleDeleteCheckIn" data-checkin-id="{{item.id}}"
+                            disabled="{{deleteLoading}}">
+                            删除打卡
+                        </button>
+                    </view>
+
+                    <view class="list-divider"></view>
+                </view>
+            </view>
+        </view>
+    </view>
+</view>

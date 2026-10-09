@@ -1,0 +1,71 @@
+<view class="container">
+    <!-- 查询维度切换 -->
+    <view class="tab-switch">
+        <button class="tab-btn {{activeTab === 'fyId' ? 'active' : ''}}" bindtap="switchTab" data-tab="fyId" disabled="{{loading}}">按非遗ID查询</button>
+        <button class="tab-btn {{activeTab === 'userId' ? 'active' : ''}}" bindtap="switchTab" data-tab="userId" disabled="{{loading}}">按发布者ID查询</button>
+    </view>
+
+    <!-- 模糊查询输入框 -->
+    <view class="search-box">
+        <input class="search-input" placeholder="{{activeTab === 'fyId' ? '请输入非遗ID' : '请输入发布者ID'}}" bindinput="onSearchInput" value="{{searchValue}}" type="number" disabled="{{loading}}" />
+        <button class="search-btn" bindtap="fetchCheckInList" loading="{{loading}}" disabled="{{loading}}">查询</button>
+    </view>
+
+    <!-- 打卡列表展示 -->
+    <view class="list-container">
+        <!-- 加载中提示 -->
+        <view class="empty-tip" wx:if="{{loading}}">加载中...</view>
+
+        <!-- 列表标题栏 -->
+        <view class="list-header" wx:if="{{checkInList.length > 0 && !loading}}">
+            <view class="list-header-item">打卡信息列表</view>
+        </view>
+
+        <block wx:if="{{!loading && checkInList.length > 0}}">
+            <view class="list-item" wx:for="{{checkInList}}" wx:key="id">
+                <view class="item-row">
+                    <text class="label">打卡ID：</text>
+                    <text>{{item.id}}</text>
+                </view>
+                <view class="item-row">
+                    <text class="label">非遗名称：</text>
+                    <text>{{item.fyName || '无'}}</text>
+                </view>
+                <view class="item-row">
+                    <text class="label">发布者：</text>
+                    <text>{{item.userName || '无'}}</text>
+                </view>
+                <view class="item-row">
+                    <text class="label">打卡时间：</text>
+                    <text>{{item.showDate}}</text>
+                </view>
+                <view class="item-row">
+                    <text class="label">打卡内容：</text>
+                    <text>{{item.txt || '无'}}</text>
+                </view>
+                <view class="item-row">
+                    <text class="label">打卡图片：</text>
+                    <image class="item-img" src="{{'https://122.246.0.213:45333/AncientCharmOfFujianStyle/' + item.pictureUrl}}" mode="widthFix" lazy-load />
+                </view>
+            </view>
+        </block>
+
+        <!-- 空数据提示：仅当加载完成且列表为空时显示 -->
+        <view class="empty-tip" wx:if="{{!loading && checkInList.length === 0}}">暂无打卡数据</view>
+    </view>
+
+    <!-- 分页控件：修复布局+仅当有数据时显示 -->
+    <view class="pagination" wx:if="{{!loading && total > 0}}">
+        <view class="page">
+            <button class="page-btn" bindtap="changePage" data-type="prev" disabled="{{pageNum <= 1 || loading}}">上一页</button>
+            <button class="page-btn" bindtap="changePage" data-type="next" disabled="{{pageNum >= totalPages || loading}}">下一页</button>
+        </view>
+        <view class="count">
+            <view>第{{pageNum}}页 / 共{{totalPages}}页（总{{total}}条）</view>
+            <view class="page-size-group">
+                每页条数：
+            </view>
+            <input type="number" class="page-size-input" value="{{pageSize}}" bindinput="onPageSizeChange" disabled="{{loading}}" min="1" max="50" />
+        </view>
+    </view>
+</view>

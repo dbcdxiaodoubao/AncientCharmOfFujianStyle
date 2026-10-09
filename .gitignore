@@ -1,19 +1,22 @@
 # 仅提交前后端源码；软著材料、文档和本地生成文件不入库。
 *
 !/.gitignore
-!/前端/
-!/后端代码/
+!/frontend/
+!/backend/
+!/frontend/**
+!/backend/**
 
 # 前端本地配置与依赖
-/前端/project.private.config.json
-/前端/node_modules/
-/前端/miniprogram_npm/
-/前端/*.log
+project.private.config.json
+/frontend/node_modules/
+/frontend/miniprogram_npm/
+/frontend/*.log
 
 # 后端构建、本地日志与临时文件
-/后端代码/target/
-/后端代码/*.log
-/后端代码/runtime-classpath.txt
-/后端代码/.idea/
-/后端代码/.vscode/
-/后端代码/.settings/
+/backend/target/
+/backend/*.log
+/backend/runtime-classpath.txt
+/backend/src/main/resources/application.yml
+/backend/.idea/
+/backend/.vscode/
+/backend/.settings/

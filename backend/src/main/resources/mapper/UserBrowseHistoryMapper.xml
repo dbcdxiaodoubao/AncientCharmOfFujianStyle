@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ancientcharmoffujianstyle.mapper.UserBrowseHistoryMapper">
+
+    <select id="selectRecent30DaysByUserId"
+            resultType="com.ancientcharmoffujianstyle.domain.entity.UserBrowseHistory">
+        SELECT
+            id,
+            user_id,
+            fy_id,
+            browse_time
+        FROM user_browse_history
+        WHERE user_id = #{userId}
+          AND browse_time >= DATE_SUB(NOW(), INTERVAL 30 DAY)
+        ORDER BY browse_time DESC, id DESC
+    </select>
+</mapper>

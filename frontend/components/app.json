@@ -1,0 +1,41 @@
+{
+    "pages": [
+      "pages/login/login",       
+      "pages/register/register", 
+      "pages/index/index",
+      "pages/detail/detail",
+      "pages/plan/plan",
+      "pages/checkIn/checkIn",
+      "pages/userDetail/userDetail"
+    ],
+    "window": {
+      "navigationBarTextStyle": "black",
+      "navigationBarTitleText": "古韵闽风",
+      "navigationBarBackgroundColor": "#ffffff",
+      "navigationBarTitleAlign": "center",
+      "backgroundTextStyle": "light"
+    },
+    "tabBar": {
+      "color": "#666666",
+      "selectedColor": "#FFA500",
+      "backgroundColor": "#ffffff",
+      "borderStyle": "black",
+      "list": [
+        {
+          "pagePath": "pages/index/index",
+          "text": "非遗列表"
+        },
+        {
+          "pagePath": "pages/plan/plan",
+          "text": "路线规划"
+        },
+        {
+          "pagePath": "pages/checkIn/checkIn",
+          "text": "打卡查询"
+        }
+      ]
+    },
+    "style": "v2",
+    "componentFramework": "glass-easel",
+    "lazyCodeLoading": "requiredComponents"
+  }

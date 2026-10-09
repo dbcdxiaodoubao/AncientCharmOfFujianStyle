@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN" "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+<mapper namespace="com.ancientcharmoffujianstyle.mapper.SysUserMapper">
+
+    <select id="login" resultType="String">
+        SELECT
+            s.`password`
+        FROM
+            sys_user AS s
+        WHERE
+            s.user_name = #{username}
+    </select>
+
+    <select id="getLoginVo" resultType="com.ancientcharmoffujianstyle.domain.vo.LoginVo">
+        SELECT
+            s.user_id,
+            s.user_name
+        FROM
+            sys_user AS s
+        WHERE
+            s.user_name = #{username}
+    </select>
+
+    <select id="haveOner" resultType="Integer">
+        SELECT
+            COUNT(*)
+        FROM
+            sys_user AS s
+        WHERE
+            s.user_name = #{username}
+    </select>
+
+    <insert id="register">
+        INSERT INTO sys_user (user_name,password,create_time,status)
+        VALUES (#{userName},#{password},now(),0)
+    </insert>
+
+</mapper>

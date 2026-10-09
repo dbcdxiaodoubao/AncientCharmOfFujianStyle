@@ -1,0 +1,75 @@
+.login-container {
+    padding: 40rpx 30rpx;
+    display: flex;
+    flex-direction: column;
+    gap: 30rpx;
+    background: linear-gradient(135deg, #FFF9E6 0%, #FEF0D0 100%);
+    min-height: 100vh;
+    justify-content: center;
+    align-items: center;
+}
+
+.login-container { padding: 56rpx 48rpx; gap: 24rpx; box-sizing: border-box; align-items: stretch; }
+.title { margin-top: 0; text-align: center; font-size: 72rpx; letter-spacing: 8rpx; }
+.subtitle { text-align: center; margin-bottom: 52rpx; text-decoration: none; letter-spacing: 4rpx; }
+.input-item { min-height: 96rpx; box-sizing: border-box; border: 1rpx solid rgba(159,107,101,.48); background: rgba(255,255,255,.84); }
+.login-btn, .register-btn { width: 100%; min-height: 88rpx; line-height: 88rpx; margin: 0; }
+.login-btn:active, .register-btn:active { opacity: .82; transform: scale(.99); }
+
+  .title {
+    font-size: 80rpx;
+    font-weight: bold;
+    color: #9F6B65;
+    margin-bottom: 5rpx;
+    margin-top: -200rpx;
+  }
+
+  .subtitle {
+    font-size: 28rpx;
+    color: #B98B85;
+    margin-bottom: 60rpx;
+    text-decoration: underline;
+    text-underline-offset: 8rpx;
+  }
+  
+  .input-item {
+    display: flex;
+    align-items: center;
+    padding: 20rpx 30rpx;
+    background: linear-gradient(135deg, rgba(255,255,255,0.9) 0%, rgba(249,249,249,0.9) 100%);
+    border-radius: 24rpx;
+    border: 2rpx solid #9F6B65;
+  }
+  
+  .input-label {
+    font-size: 28rpx;
+    color: #333;
+    width: 180rpx;
+  }
+  
+  .input-content {
+    flex: 1;
+    font-size: 28rpx;
+    color: #666;
+    padding: 5rpx 0;
+  }
+  
+  .login-btn {
+    height: 80rpx;
+    background: linear-gradient(135deg, #9F6B65 0%, #8B5A50 100%);
+    color: #fff;
+    border-radius: 24rpx;
+    font-size: 30rpx;
+    border: none;
+    margin-top: 20rpx;
+    box-shadow: 0 8rpx 32rpx rgba(159, 107, 101, 0.15);
+  }
+  
+  .register-btn {
+    height: 80rpx;
+    background: rgba(255, 255, 255, 0.9);
+    color: #9F6B65;
+    border-radius: 24rpx;
+    font-size: 30rpx;
+    border: 2rpx solid #9F6B65;
+  }

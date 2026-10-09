@@ -1,0 +1,32 @@
+<view class="detail-container">
+    <view class="detail-header">
+        <image src="{{item.pictureUrl}}" class="detail-image" mode="aspectFill" binderror="onImageError" bindtap="onImageTap" data-image="{{item.pictureUrl}}" />
+        <view class="detail-title-section">
+            <text class="detail-title">{{item.name}}</text>
+            <text class="detail-category">{{item.cityName}} | {{item.level}}</text>
+            <button class="favorite-button {{isFavorite ? 'is-favorite' : ''}}" bindtap="onFavoriteTap" loading="{{isFavoriteLoading}}" disabled="{{isFavoriteLoading}}">{{isFavorite ? '已收藏' : '收藏'}}</button>
+        </view>
+    </view>
+
+    <view class="detail-content">
+        <view class="detail-description">
+            <rich-text 
+                class="description-text" 
+                nodes="{{formattedDtl}}"
+                wx:if="{{item && item.dtl}}"
+            ></rich-text>
+            
+            <view class="empty-tip" wx:if="{{item && !item.dtl}}">
+                <text>暂无详细介绍</text>
+            </view>
+        </view>
+    </view>
+
+    <view class="loading-tip" wx:if="{{isLoading}}">
+        <text>加载中...</text>
+    </view>
+
+    <view class="error-tip" wx:if="{{!isLoading && !item}}">
+        <text>数据加载失败，请重试</text>
+    </view>
+</view>

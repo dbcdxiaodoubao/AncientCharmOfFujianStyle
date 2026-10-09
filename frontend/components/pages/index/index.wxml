@@ -1,0 +1,53 @@
+<!-- 地图容器 -->
+<view class="map-container">
+    <ec-canvas id="mychart-dom-map" canvas-id="mychart-area" ec="{{ ec }}" lazy-load="{{true}}">
+    </ec-canvas>
+</view>
+
+<!-- 筛选栏 -->
+<view class="filter-panel">
+    <view class="tab-nav">
+        <view class="tab-item {{ filterLevel === 'all' ? 'active' : '' }}" data-level="all" bindtap="onFilterTap">全部</view>
+        <view class="tab-item {{ filterLevel === 'world' ? 'active' : '' }}" data-level="world" bindtap="onFilterTap">世界级</view>
+        <view class="tab-item {{ filterLevel === 'national' ? 'active' : '' }}" data-level="national" bindtap="onFilterTap">国家级</view>
+        <view class="tab-item {{ filterLevel === 'provincial' ? 'active' : '' }}" data-level="provincial" bindtap="onFilterTap">省级</view>
+        <view class="tab-item {{ filterLevel === 'city' ? 'active' : '' }}" data-level="city" bindtap="onFilterTap">市级</view>
+        <view class="tab-item {{ filterLevel === 'county' ? 'active' : '' }}" data-level="county" bindtap="onFilterTap">县级</view>
+    </view>
+</view>
+
+<!-- 内容区 -->
+<view class="content-panel">
+    <!-- 搜索框和城市筛选提示 -->
+    <view class="search-container">
+        <input type="text" placeholder="请输入关键字..." value="{{ searchValue }}" bindinput="onSearchInput" class="search-input" />
+        <text class="clear-search" wx:if="{{searchValue}}" bindtap="onSearchClear">×</text>
+
+        <!-- 城市筛选提示 -->
+        <view class="city-filter-tip" wx:if="{{selectedCity}}">
+            <text>当前筛选城市: {{selectedCity}}</text>
+            <text class="clear-city" bindtap="clearCityFilter">清除</text>
+        </view>
+    </view>
+
+    <!-- 加载状态 -->
+    <view class="loading-tip" wx:if="{{isLoading}}">
+        <text>加载中...</text>
+    </view>
+
+    <!-- 列表 -->
+    <block wx:for="{{ filteredItems }}" wx:key="id">
+        <view class="item-card" data-item="{{item}}" bindtap="onItemTap">
+            <image src="{{'https://122.246.0.213:45333/AncientCharmOfFujianStyle/' + item.pictureUrl}}" class="item-image" mode="aspectFill" />
+            <view class="item-content">
+                <text class="item-title">{{ item.name }}</text>
+                <text class="item-info">{{ item.cityName }} | {{ item.level }}</text>
+            </view>
+        </view>
+    </block>
+
+    <!-- 无数据提示 -->
+    <view class="empty-tip" wx:if="{{!isLoading && filteredItems.length === 0}}">
+        <text>暂无数据</text>
+    </view>
+</view>

@@ -1,0 +1,44 @@
+<view class="register-container">
+  <!-- 标题 -->
+  <view class="title">古韵闽风</view>
+  <view class="subtitle">把 你 的 足 迹 留 在 福 建</view>
+  <!-- 用户名输入 -->
+  <view class="input-item">
+    <text class="input-label">用户名：</text>
+    <input 
+      class="input-content" 
+      placeholder="请设置用户名" 
+      bindinput="onUserNameInput" 
+      value="{{userName}}"
+      type="text"
+    />
+  </view>
+
+  <!-- 密码输入 -->
+  <view class="input-item">
+    <text class="input-label">密码：</text>
+    <input 
+      class="input-content" 
+      placeholder="请设置密码" 
+      bindinput="onPasswordInput" 
+      value="{{password}}"
+      type="password"
+    />
+  </view>
+
+  <!-- 确认密码 -->
+  <view class="input-item">
+    <text class="input-label">确认密码：</text>
+    <input 
+      class="input-content" 
+      placeholder="请再次输入密码" 
+      bindinput="onRePasswordInput" 
+      value="{{rePassword}}"
+      type="password"
+    />
+  </view>
+
+  <!-- 注册按钮 -->
+  <button class="register-btn" bindtap="handleRegister" loading="{{loading}}" disabled="{{loading}}">注册</button>
+  <button class="back-btn" bindtap="gotoLogin" disabled="{{loading}}">返回登录</button>
+</view>

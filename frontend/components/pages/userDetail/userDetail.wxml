@@ -1,0 +1,22 @@
+<view class="user-detail-container">
+  <view class="user-item">
+    <text class="label">用户ID：</text>
+    <text class="value">{{userInfo.userId}}</text>
+  </view>
+  <view class="user-item">
+    <text class="label">用户名：</text>
+    <text class="value">{{userInfo.userName}}</text>
+  </view>
+  <view class="user-item">
+    <text class="label">密码：</text>
+    <text class="value">{{userInfo.password}}</text>
+  </view>
+  <view class="user-item">
+    <text class="label">创建时间：</text>
+    <text class="value">{{userInfo.createTime}}</text>
+  </view>
+  <view class="user-item">
+    <text class="label">状态：</text>
+    <text class="value">{{userInfo.status === 0 ? '正常' : '禁用'}}</text>
+  </view>
+</view>
