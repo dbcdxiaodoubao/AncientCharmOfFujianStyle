@@ -50,7 +50,7 @@
         <view class="recommendation-loading" wx:if="{{isRecommendationLoading}}">推荐加载中...</view>
         <block wx:if="{{isRecommendationExpanded}}" wx:for="{{recommendationItems}}" wx:key="id">
             <view class="recommendation-card" data-item="{{item}}" bindtap="onItemTap">
-                <image src="{{item.pictureUrl}}" class="recommendation-image" mode="aspectFill" />
+                <image wx:if="{{item.pictureUrl}}" src="{{item.pictureUrl}}" class="recommendation-image" mode="aspectFill" />
                 <view class="recommendation-content">
                     <view class="recommendation-topline">
                         <text class="recommendation-name">{{item.name}}</text>
@@ -74,7 +74,7 @@
     <!-- 列表 -->
     <block wx:for="{{ filteredItems }}" wx:key="id">
         <view class="item-card" data-item="{{item}}" bindtap="onItemTap">
-            <image src="{{item.pictureUrl}}" class="item-image"
+            <image wx:if="{{item.pictureUrl}}" src="{{item.pictureUrl}}" class="item-image"
                 mode="aspectFill" />
             <view class="item-content">
                 <text class="item-title">{{ item.name }}</text>

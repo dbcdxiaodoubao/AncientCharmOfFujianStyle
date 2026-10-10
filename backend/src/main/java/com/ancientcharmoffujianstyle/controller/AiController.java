@@ -21,6 +21,7 @@ import java.util.List;
 import java.util.Map;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import com.ancientcharmoffujianstyle.security.CurrentUser;
 
 @RestController
 @RequestMapping("/ai")
@@ -39,7 +40,7 @@ public class AiController extends WebController {
     public SseEmitter chat(@RequestBody AiChatQuery query) {
         SseEmitter emitter = new SseEmitter(STREAM_TIMEOUT);
 
-        Long userId = query == null ? null : query.getUserId();
+        Long userId = CurrentUser.optionalSelf(query == null ? null : query.getUserId());
         String message = query == null ? null : query.getMessage();
         List<AiMessage> history = query == null ? null : query.getHistory();
 
@@ -48,7 +49,7 @@ public class AiController extends WebController {
             return emitter;
         }
         if (!aiChatService.isConfigured()) {
-            sendText(emitter, "AI 服务尚未配置，请在 application.yml 的 ai.api-key 中填入智谱 API Key。");
+            sendText(emitter, "AI 助手暂未开放，请先使用地图检索和路线规划。");
             return emitter;
         }
 
@@ -59,7 +60,8 @@ public class AiController extends WebController {
                 sendDone(emitter);
                 emitter.complete();
             } catch (Exception exception) {
-                sendText(emitter, "AI 服务调用失败：" + exception.getMessage());
+                logger.warn("AI service request failed", exception);
+                sendText(emitter, "AI 助手暂时无法回复，请稍后重试。");
             }
         });
         return emitter;

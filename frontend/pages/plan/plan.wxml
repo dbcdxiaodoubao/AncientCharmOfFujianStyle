@@ -47,7 +47,7 @@
                         <text class="info-value">{{item.levelName || '未知级别'}}</text>
                     </view>
                     <view class="info-item" wx:if="{{item.pictureUrl}}">
-                        <image src="{{baseUrl + '/' + item.pictureUrl}}" class="info-image" mode="aspectFill" />
+                        <image src="{{item.pictureUrl}}" class="info-image" mode="aspectFill" />
                     </view>
                 </view>
             </block>

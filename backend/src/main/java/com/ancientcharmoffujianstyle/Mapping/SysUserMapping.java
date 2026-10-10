@@ -4,7 +4,6 @@ import com.ancientcharmoffujianstyle.domain.entity.SysUser;
 import com.ancientcharmoffujianstyle.domain.vo.SysUserDtlVo;
 import com.ancientcharmoffujianstyle.domain.vo.SysUserListVo;
 import org.mapstruct.Mapper;
-import org.mapstruct.Mapping;
 import org.mapstruct.ReportingPolicy;
 import org.mapstruct.factory.Mappers;
 
@@ -22,6 +21,5 @@ public interface SysUserMapping {
     SysUserDtlVo toDtlVo(SysUser sysUser);
 
     /** 将实体转为列表VO，仅暴露非敏感字段 */
-    @Mapping(target = "password", ignore = true)
     SysUserListVo toListVo(SysUser sysUser);
 }

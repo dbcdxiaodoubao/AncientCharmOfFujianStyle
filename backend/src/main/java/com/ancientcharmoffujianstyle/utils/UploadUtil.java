@@ -4,94 +4,49 @@ import com.ancientcharmoffujianstyle.domain.query.CheckInQuery;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 import org.springframework.web.multipart.MultipartFile;
-
-import java.io.File;
+import javax.imageio.ImageIO;
 import java.io.IOException;
-import java.text.SimpleDateFormat;
-import java.util.Date;
+import java.io.InputStream;
+import java.nio.file.Files;
+import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.util.UUID;
 
 @Component
 public class UploadUtil {
-
-    // 从配置文件读取存储路径
-    @Value("${upload.path}")
+    @Value("${upload.path:./uploads}")
     private String uploadPath;
-
-    // 从配置文件读取访问前缀
-    @Value("${upload.access-path}")
+    @Value("${upload.access-path:images/}")
     private String accessPath;
 
-    /**
-     * 图片上传（文件名：毫秒时间戳+后缀）
-     * @param file 上传的图片文件
-     * @return 图片访问URL（前端用于展示）
-     */
-    public String uploadImage(MultipartFile file, CheckInQuery checkInQuery) throws IOException {
-        // 1. 校验文件是否为空
-        if (file.isEmpty()) {
-            throw new RuntimeException("上传的图片不能为空");
-        }
-
-        // 2. 校验文件类型（仅允许jpg、png、jpeg）
-        String originalFilename = file.getOriginalFilename();
-        // 防止文件名中没有后缀
-        if (originalFilename == null || !originalFilename.contains(".")) {
-            throw new RuntimeException("图片文件名格式不正确");
-        }
-        String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
-        if (!".jpg".equalsIgnoreCase(suffix) && !".png".equalsIgnoreCase(suffix) && !".jpeg".equalsIgnoreCase(suffix)) {
-            throw new RuntimeException("仅支持jpg、png、jpeg格式的图片");
-        }
-
-        // 3. 生成文件名：毫秒时间戳+后缀（核心修改：替换UUID为System.currentTimeMillis()）
-        long timeStamp = System.currentTimeMillis(); // 13位毫秒级时间戳，确保唯一
-        String fileName = timeStamp +checkInQuery.getUserId()+ suffix;
-
-        // 4. 创建存储目录（若目录不存在则自动创建）
-        File uploadDir = new File(uploadPath);
-        if (!uploadDir.exists()) {
-            uploadDir.mkdirs();
-        }
-
-        // 5. 保存文件到本地
-        File destFile = new File(uploadPath + fileName);
-        file.transferTo(destFile);
-
-        // 6. 返回图片访问URL
-        return accessPath + fileName;
+    public String uploadImage(MultipartFile file, CheckInQuery query) throws IOException {
+        return save(file, "");
     }
 
-    /**
-     * 图片上传（文件名：毫秒时间戳+后缀）
-     * @param file 上传的图片文件
-     * @return 图片访问URL（前端用于展示）
-     */
-    public String uploadface(MultipartFile file,String studentName) throws IOException {
-        // 1. 校验文件是否为空
-        if (file.isEmpty()) {
-            throw new RuntimeException("上传的图片不能为空");
+    public String uploadface(MultipartFile file, String studentName) throws IOException {
+        return save(file, "face/");
+    }
+
+    private String save(MultipartFile file, String subdirectory) throws IOException {
+        if (file == null || file.isEmpty()) throw new IllegalArgumentException("上传的图片不能为空");
+        if (file.getSize() > 5 * 1024 * 1024) throw new IllegalArgumentException("图片不能超过5MB");
+        String name = file.getOriginalFilename();
+        if (name == null || !name.toLowerCase(java.util.Locale.ROOT).matches(".*\\.(jpg|jpeg|png)$")) {
+            throw new IllegalArgumentException("仅支持jpg、png、jpeg格式的图片");
         }
-
-        // 2. 校验文件类型（仅允许jpg、png、jpeg）
-        String originalFilename = file.getOriginalFilename();
-        // 防止文件名中没有后缀
-        if (originalFilename == null || !originalFilename.contains(".")) {
-            throw new RuntimeException("图片文件名格式不正确");
+        try (InputStream stream = file.getInputStream()) {
+            if (ImageIO.read(stream) == null) throw new IllegalArgumentException("图片内容无效");
         }
-        String suffix = originalFilename.substring(originalFilename.lastIndexOf("."));
-        if (!".jpg".equalsIgnoreCase(suffix) && !".png".equalsIgnoreCase(suffix) && !".jpeg".equalsIgnoreCase(suffix)) {
-            throw new RuntimeException("仅支持jpg、png、jpeg格式的图片");
+        String suffix = name.substring(name.lastIndexOf('.')).toLowerCase(java.util.Locale.ROOT);
+        Path directory = Paths.get(uploadPath).toAbsolutePath().normalize().resolve(subdirectory);
+        Files.createDirectories(directory);
+        Path destination = directory.resolve(UUID.randomUUID() + suffix);
+        try {
+            file.transferTo(destination.toFile());
+        } catch (IOException | RuntimeException exception) {
+            Files.deleteIfExists(destination);
+            throw exception;
         }
-
-
-        String fileName = studentName+ suffix;
-
-
-        // 5. 保存文件到本地
-        File destFile = new File(uploadPath+"face/"+ fileName);
-        file.transferTo(destFile);
-
-        // 6. 返回图片访问URL
-        return accessPath +"face/"+ fileName;
+        return accessPath.replaceAll("/+$", "") + "/" + subdirectory + destination.getFileName();
     }
 }

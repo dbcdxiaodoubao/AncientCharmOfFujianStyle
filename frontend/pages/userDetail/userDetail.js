@@ -156,6 +156,7 @@ Page({
             method: 'POST',
             data: { userId: app.globalData.userInfo.userId, city, category }
         }).then(() => {
+            app.markRecommendationsChanged();
             wx.showToast({ title: '偏好已保存', icon: 'success' });
         }).catch(err => {
             console.error('保存偏好失败:', err);
@@ -240,11 +241,11 @@ Page({
         const globalUser = app.globalData.userInfo;
         const storageUser = wx.getStorageSync('userInfo');
 
-        if (globalUser && globalUser.userName && globalUser.userId) {
+        if (app.globalData.authToken && globalUser && globalUser.userName && globalUser.userId) {
             return true;
         }
 
-        if (storageUser && storageUser.userName && storageUser.userId) {
+        if (app.globalData.authToken && storageUser && storageUser.userName && storageUser.userId) {
             app.globalData.userInfo = storageUser;
             return true;
         }
@@ -289,7 +290,7 @@ Page({
             }));
             this.setData({
                 userList: formatUserList,
-                showList: showList
+                showUserList: showList
             });
         }).catch(err => {
             wx.showToast({ title: err.msg || '查询失败', icon: 'none' });
@@ -317,14 +318,20 @@ Page({
             confirmText: '确定退出',
             cancelText: '取消',
             confirmColor: '#dc3545',
-            success: (res) => {
+            success: async (res) => {
                 if (res.confirm) {
-                    app.globalData.userInfo = null;
-                    wx.removeStorageSync('userInfo');
+                    try { await app.request({ url: '/sysuser/logout', method: 'POST' }); }
+                    catch (error) {
+                        if (error.httpStatus !== 401) {
+                            wx.showToast({ title: '退出失败，请重试', icon: 'none' });
+                            return;
+                        }
+                    }
+                    app.clearSession();
                     this.setData({
                         userInfo: { userId: '无', userName: '无', status: '异常' },
                         userList: [],
-                        showList: false
+                        showUserList: false
                     });
                     wx.showToast({ title: '已退出登录', icon: 'success' });
                     setTimeout(() => {

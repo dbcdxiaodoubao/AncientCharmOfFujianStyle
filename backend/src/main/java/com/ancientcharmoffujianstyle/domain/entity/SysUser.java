@@ -16,6 +16,7 @@ public class SysUser {
   @ApiModelProperty("用户名")
   private String userName;
   @ApiModelProperty("密码")
+  @com.fasterxml.jackson.annotation.JsonIgnore
   private String password;
   @ApiModelProperty("创建时间")
   private java.sql.Timestamp createTime;

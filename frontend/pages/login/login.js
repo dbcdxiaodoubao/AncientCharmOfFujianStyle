@@ -37,47 +37,8 @@ Page({
         header: { 'content-type': 'application/json' }
       });
   
-      console.log('【Login Debug】原始响应 res:', res);
-      
-      // 1. 【核心修复】多重容错提取数据
-      let backendData = null;
-  
-      if (res.data && res.data.data) {
-        backendData = res.data.data;
-      }
-      else if (res.data && res.data.userId) {
-        backendData = res.data;
-      }
-      else if (res.data && res.data.id) {
-        backendData = { 
-          userId: res.data.id, 
-          userName: res.data.userName || userName,
-          status: res.data.status 
-        };
-      }
-  
-      if (!backendData) {
-        throw new Error('无法解析服务器返回数据，请检查控制台日志');
-      }
-  
-      console.log('【Login Debug】提取到的用户数据:', backendData);
-  
-      // 2. 构建用户信息
-      const userInfo = {
-        userId: Number(backendData.userId) || Number(backendData.id) || null,
-        userName: backendData.userName || userName,
-        status: backendData.status === 0 ? '正常' : '异常'
-      };
-  
-      // 3. 再次检查 ID 是否有效
-      if (!userInfo.userId || isNaN(userInfo.userId)) {
-        throw new Error('登录失败：用户ID无效 (' + JSON.stringify(backendData) + ')');
-      }
-  
-      // 4. 存入全局和缓存
-      app.globalData.userInfo = userInfo;
-      wx.setStorageSync('userInfo', userInfo);
-  
+      app.setSession(res.data);
+
       wx.showToast({ 
         title: '登录成功！', 
         icon: 'success' 
@@ -100,7 +61,9 @@ Page({
         errorTitle = '用户名或密码错误';
       } 
       // 自定义错误（上面 throw 的）
-      else if (error.message) {
+      else if (error.msg) {
+        errorTitle = error.msg;
+      } else if (error.message) {
         errorTitle = error.message;
       }
   

@@ -8,7 +8,6 @@ import com.ancientcharmoffujianstyle.domain.vo.LoginVo;
 import com.ancientcharmoffujianstyle.mapper.SysUserMapper;
 import com.ancientcharmoffujianstyle.service.ISysUserService;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -33,21 +32,12 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
     @Autowired
     private PasswordEncoder passwordEncoder;
 
-    /** 内置管理员账号（从配置读取，默认 admin） */
-    @Value("${security.builtin-admin.username:admin}")
-    private String builtinAdminUsername;
-
-    /** 内置管理员密码 BCrypt 哈希（从配置读取，源码中不存储凭据） */
-    @Value("${security.builtin-admin.password-hash:}")
-    private String builtinAdminPasswordHash;
-
     @Override
     public boolean login(LoginQuery loginQuery) {
-        // 快速通道：内置管理员可直接登录
-        if (isBuiltinAdmin(loginQuery.getUserName(), loginQuery.getPassword())) {
-            return true;
-        }
-        // 标准流程：查询数据库验证
+        // Every login must resolve to an active persisted user.
+        SysUser user = sysUserMapper.selectOne(new com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper<SysUser>()
+                .eq(SysUser::getUserName, loginQuery.getUserName()));
+        if (user == null || !Long.valueOf(0).equals(user.getStatus())) return false;
         String encodedPassword = sysUserMapper.login(loginQuery.getUserName());
         if (encodedPassword == null || encodedPassword.isEmpty()) {
             return false;
@@ -87,19 +77,4 @@ public class SysUserServiceImpl extends ServiceImpl<SysUserMapper, SysUser> impl
         return sysUserMapper.haveOner(username);
     }
 
-    /**
-     * 验证是否为平台内置管理员
-     * 管理员账号用于非遗数据和用户打卡记录的维护管理。
-     * 账号名与密码哈希均从配置读取，源码中不存储任何凭据。
-     */
-    private boolean isBuiltinAdmin(String username, String password) {
-        if (builtinAdminPasswordHash == null || builtinAdminPasswordHash.isEmpty()) {
-            return false;
-        }
-        if (!builtinAdminUsername.equals(username)) {
-            return false;
-        }
-        // 通过BCrypt比对而非明文比较
-        return passwordEncoder.matches(password, builtinAdminPasswordHash);
-    }
 }

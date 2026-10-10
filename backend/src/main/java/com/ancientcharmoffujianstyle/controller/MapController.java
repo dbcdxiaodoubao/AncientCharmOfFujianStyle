@@ -45,6 +45,7 @@ public class MapController extends WebController {
     @ApiOperation("查询非遗详情")
     public ApiResponse<FyinfoDtlVo> dtl(@PathVariable @Validated Long id){
         Fyinfo byId = fyinfoService.getById(id);
+        if (byId == null) return ApiResponse.error("非遗项目不存在", null);
         FyinfoDtlVo dtlVo = new FyinfoDtlVo();
         dtlVo.setId(id);
         dtlVo.setCity(byId.getCity());

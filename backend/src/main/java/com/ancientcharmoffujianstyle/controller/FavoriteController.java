@@ -14,6 +14,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import com.ancientcharmoffujianstyle.security.CurrentUser;
 
 @RestController
 @RequestMapping("/favorite")
@@ -29,6 +30,7 @@ public class FavoriteController {
     @PostMapping
     @ApiOperation("收藏非遗项目")
     public ApiResponse<Void> add(@RequestParam Long userId, @RequestParam Long fyId) {
+        CurrentUser.requireSelf(userId);
         try {
             if (!favoriteService.addFavorite(userId, fyId)) {
                 return ApiResponse.error("已收藏该非遗项目", null);
@@ -42,6 +44,7 @@ public class FavoriteController {
     @DeleteMapping
     @ApiOperation("取消收藏非遗项目")
     public ApiResponse<Void> remove(@RequestParam Long userId, @RequestParam Long fyId) {
+        CurrentUser.requireSelf(userId);
         try {
             favoriteService.removeFavorite(userId, fyId);
             return ApiResponse.success();
@@ -53,6 +56,7 @@ public class FavoriteController {
     @GetMapping("/{userId}")
     @ApiOperation("查询用户收藏")
     public ApiResponse<List<UserFavorite>> list(@PathVariable Long userId) {
+        CurrentUser.requireSelf(userId);
         try {
             return ApiResponse.success(favoriteService.listByUserId(userId));
         } catch (IllegalArgumentException exception) {

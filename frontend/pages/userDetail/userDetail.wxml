@@ -50,7 +50,7 @@
     <view class="func-list">
         <view class="func-item" bindtap="showUserListManual" disabled="{{loading}}">
             <view class="func-icon userlist-icon"></view>
-            <text class="func-text">用户列表</text>
+            <text class="func-text">账户信息</text>
             <view class="func-arrow"></view>
         </view>
 
@@ -67,11 +67,11 @@
         </view>
     </view>
 
-    <!-- 用户列表 弹窗模式 -->
+    <!-- 账户信息 弹窗模式 -->
     <view class="modal-mask" wx:if="{{showUserList}}" bindtap="closeUserList"></view>
     <view class="user-list-modal" wx:if="{{showUserList}}">
         <view class="list-header">
-            <text class="list-title">用户列表</text>
+            <text class="list-title">账户信息</text>
             <button class="close-btn" bindtap="closeUserList">×</button>
         </view>
 

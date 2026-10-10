@@ -2,7 +2,56 @@
   "compileType": "miniprogram",
   "libVersion": "3.11.3",
   "packOptions": {
-    "ignore": [],
+    "ignore": [
+      {
+        "type": "folder",
+        "value": "components/node_modules"
+      },
+      {
+        "type": "folder",
+        "value": "components/pages"
+      },
+      {
+        "type": "folder",
+        "value": "components/images"
+      },
+      {
+        "type": "folder",
+        "value": "components/static"
+      },
+      {
+        "type": "folder",
+        "value": "scripts"
+      },
+      {
+        "type": "folder",
+        "value": "tests"
+      },
+      {
+        "type": "file",
+        "value": "components/app.js"
+      },
+      {
+        "type": "file",
+        "value": "components/app.json"
+      },
+      {
+        "type": "file",
+        "value": "components/app.wxss"
+      },
+      {
+        "type": "file",
+        "value": "components/project.config.json"
+      },
+      {
+        "type": "file",
+        "value": "check-register-error-contract.js"
+      },
+      {
+        "type": "file",
+        "value": "pages/index/recommendation-contract-check.cjs"
+      }
+    ],
     "include": []
   },
   "setting": {

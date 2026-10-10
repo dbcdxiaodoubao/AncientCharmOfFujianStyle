@@ -8,6 +8,8 @@ const detailJs = fs.readFileSync(path.join(pagesRoot, 'detail', 'detail.js'), 'u
 const detailWxml = fs.readFileSync(path.join(pagesRoot, 'detail', 'detail.wxml'), 'utf8');
 const userDetailJs = fs.readFileSync(path.join(pagesRoot, 'userDetail', 'userDetail.js'), 'utf8');
 const userDetailWxml = fs.readFileSync(path.join(pagesRoot, 'userDetail', 'userDetail.wxml'), 'utf8');
+const myCheckInJs = fs.readFileSync(path.join(pagesRoot, 'myCheckIn', 'myCheckIn.js'), 'utf8');
+const myCheckInWxml = fs.readFileSync(path.join(pagesRoot, 'myCheckIn', 'myCheckIn.wxml'), 'utf8');
 const checkInJs = fs.readFileSync(path.join(pagesRoot, 'checkIn', 'checkIn.js'), 'utf8');
 const checkInWxml = fs.readFileSync(path.join(pagesRoot, 'checkIn', 'checkIn.wxml'), 'utf8');
 
@@ -37,8 +39,8 @@ const checks = [
     ['首页游客使用独立 in-flight 键', indexJs.includes("userId || 'guest'")],
     ['打卡列表生成图片展示地址', checkInJs.includes('displayPictureUrl')],
     ['打卡列表使用图片展示地址', checkInWxml.includes('{{item.displayPictureUrl}}')],
-    ['用户打卡记录生成图片展示地址', userDetailJs.includes('displayPictureUrl')],
-    ['用户打卡记录使用图片展示地址', userDetailWxml.includes('{{item.displayPictureUrl}}')]
+    ['用户打卡记录生成图片展示地址', myCheckInJs.includes('displayPictureUrl')],
+    ['用户打卡记录使用图片展示地址', myCheckInWxml.includes('{{item.displayPictureUrl}}')]
 ];
 
 const failed = checks.filter(([, passed]) => !passed).map(([name]) => name);

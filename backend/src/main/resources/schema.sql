@@ -1,3 +1,45 @@
+-- Core tables are included so an empty database can start without a private SQL dump.
+CREATE TABLE IF NOT EXISTS sys_user (
+    user_id BIGINT NOT NULL AUTO_INCREMENT,
+    user_name VARCHAR(80) NOT NULL,
+    password VARCHAR(100) NOT NULL,
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    status BIGINT NOT NULL DEFAULT 0,
+    PRIMARY KEY (user_id),
+    UNIQUE KEY uk_sys_user_name (user_name)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS fyinfo (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    name VARCHAR(255) NOT NULL,
+    dtl TEXT,
+    picture_url VARCHAR(512),
+    city BIGINT NOT NULL,
+    level BIGINT,
+    type VARCHAR(100),
+    PRIMARY KEY (id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS check_in (
+    id BIGINT NOT NULL AUTO_INCREMENT,
+    user_id BIGINT NOT NULL,
+    fy_id BIGINT NOT NULL,
+    picture_url VARCHAR(512) NOT NULL,
+    txt VARCHAR(1000),
+    create_time DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
+    PRIMARY KEY (id),
+    KEY idx_check_in_user (user_id),
+    KEY idx_check_in_fy (fy_id)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
+CREATE TABLE IF NOT EXISTS auth_session (
+    token_hash CHAR(64) NOT NULL,
+    user_id BIGINT NOT NULL,
+    expires_at DATETIME NOT NULL,
+    PRIMARY KEY (token_hash),
+    KEY idx_auth_session_expiry (expires_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4;
+
 CREATE TABLE IF NOT EXISTS user_favorite (
     id BIGINT NOT NULL AUTO_INCREMENT COMMENT '收藏记录id',
     user_id BIGINT NOT NULL COMMENT '用户id',

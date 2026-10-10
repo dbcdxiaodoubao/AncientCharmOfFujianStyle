@@ -68,7 +68,8 @@ Page({
 
     onShow() {
         const userId = this.getCurrentUserId();
-        if (String(userId || '') !== String(this.data.recommendationUserId || '')) {
+        if (String(userId || '') !== String(this.data.recommendationUserId || '')
+                || this.loadedRecommendationVersion !== getApp().globalData.recommendationVersion) {
             this.loadRecommendations();
         }
     },
@@ -85,6 +86,7 @@ Page({
         this.recommendationInFlightByUser = this.recommendationInFlightByUser || new Map();
         if (this.recommendationInFlightByUser.has(userKey)) return;
 
+        const version = getApp().globalData.recommendationVersion;
         const query = userId ? `?userId=${encodeURIComponent(userId)}` : '';
         const requestId = (this.recommendationRequestId || 0) + 1;
         this.recommendationRequestId = requestId;
@@ -93,11 +95,12 @@ Page({
 
         try {
             const res = await getApp().request({ url: `/recommendation${query}` });
-            if (this.getCurrentUserId() !== userId || this.recommendationRequestId !== requestId) return;
+            if (this.getCurrentUserId() !== userId || this.recommendationRequestId !== requestId
+                    || version !== getApp().globalData.recommendationVersion) return;
+            this.loadedRecommendationVersion = version;
             this.setData({
                 recommendationItems: (res.data || [])
                     .map(item => this.processRecommendationData(item))
-                    .sort((left, right) => Number(right.score) - Number(left.score))
                     .slice(0, 10),
                 recommendationUserId: userId,
                 isRecommendationLoading: false
@@ -110,6 +113,10 @@ Page({
         } finally {
             if (this.recommendationInFlightByUser.get(userKey) === requestId) {
                 this.recommendationInFlightByUser.delete(userKey);
+            }
+            if (this.getCurrentUserId() === userId && this.recommendationRequestId === requestId
+                    && version !== getApp().globalData.recommendationVersion) {
+                this.loadRecommendations();
             }
         }
     },
@@ -141,7 +148,7 @@ Page({
 
         try {
             const res = await new Promise((resolve, reject) => {
-                wx.request({
+                getApp().rawRequest({
                     url: `${getApp().globalData.baseUrl}/AncientCharmOfFujianStyle/map`,
                     method: 'GET',
                     header: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -351,6 +358,6 @@ Page({
     },
 
     onPullDownRefresh() {
-        this.loadHeritageList().finally(() => wx.stopPullDownRefresh());
+        Promise.all([this.loadHeritageList(), this.loadRecommendations()]).finally(() => wx.stopPullDownRefresh());
     }
 });

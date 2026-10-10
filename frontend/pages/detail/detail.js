@@ -62,7 +62,7 @@ Page({
 
         try {
             const res = await new Promise((resolve, reject) => {
-                wx.request({
+                getApp().rawRequest({
                     url: `${getApp().globalData.baseUrl}/AncientCharmOfFujianStyle/map/dtl/${id}`,
                     method: 'GET',
                     header: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -136,6 +136,7 @@ Page({
         this.browsedUserId = String(userId);
         try {
             await getApp().request({ url: `/recommendation/browse${query}`, method: 'POST' });
+            getApp().markRecommendationsChanged();
         } catch (error) {
             console.error('写入浏览足迹失败:', error);
         }
@@ -157,6 +158,7 @@ Page({
                 url: `/favorite?userId=${encodeURIComponent(userId)}&fyId=${encodeURIComponent(fyId)}`,
                 method: isFavorite ? 'DELETE' : 'POST'
             });
+            getApp().markRecommendationsChanged();
             this.setData({ isFavorite: !isFavorite });
             wx.showToast({ title: isFavorite ? '已取消收藏' : '收藏成功', icon: 'success' });
         } catch (error) {

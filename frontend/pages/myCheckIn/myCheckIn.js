@@ -53,7 +53,7 @@ Page({
         }
 
         this.setData({ loading: true });
-        wx.request({
+        getApp().rawRequest({
             url: `${this.data.baseUrl}/check-in/byuser`,
             method: 'GET',
             data: { userId: userInfo.userId, pageNum: 1, pageSize: 50 },

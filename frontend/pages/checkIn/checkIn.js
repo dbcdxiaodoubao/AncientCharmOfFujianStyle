@@ -63,7 +63,7 @@ Page({
 
     // ============ 非遗标签 ============
     loadTags() {
-        wx.request({
+        getApp().rawRequest({
             url: `${this.data.baseUrl}/check-in/tags`,
             method: 'GET',
             success: (res) => {
@@ -130,7 +130,7 @@ Page({
             params.fyId = selectedFyId;
         }
 
-        wx.request({
+        getApp().rawRequest({
             url: `${baseUrl}/check-in/byfy`,
             method: 'GET',
             data: params,
@@ -206,7 +206,7 @@ Page({
             this.applyFyFilter();
             return;
         }
-        wx.request({
+        getApp().rawRequest({
             url: `${this.data.baseUrl}/map`,
             method: 'GET',
             success: (res) => {
@@ -289,7 +289,7 @@ Page({
 
         this.setData({ checkInLoading: true });
 
-        wx.uploadFile({
+        getApp().uploadFile({
             url: `${app.globalData.baseUrl}/AncientCharmOfFujianStyle/check-in/upload`,
             filePath: tempImagePath,
             name: 'image',
@@ -342,7 +342,7 @@ Page({
         if (!userId || !items || !items.length) return;
         const ids = items.map(item => item.id).filter(id => id).join(',');
         if (!ids) return;
-        wx.request({
+        getApp().rawRequest({
             url: `${this.data.baseUrl}/check-in/liked`,
             method: 'GET',
             data: { userId, checkinIds: ids },
@@ -365,7 +365,7 @@ Page({
             wx.showToast({ title: '请先登录', icon: 'none' });
             return;
         }
-        wx.request({
+        getApp().rawRequest({
             url: `${this.data.baseUrl}/check-in/like`,
             method: 'POST',
             header: { 'content-type': 'application/x-www-form-urlencoded' },
@@ -398,7 +398,7 @@ Page({
     },
 
     loadComments(id) {
-        wx.request({
+        getApp().rawRequest({
             url: `${this.data.baseUrl}/check-in/comments`,
             method: 'GET',
             data: { checkinId: id },
@@ -431,7 +431,7 @@ Page({
             wx.showToast({ title: '请输入评论内容', icon: 'none' });
             return;
         }
-        wx.request({
+        getApp().rawRequest({
             url: `${this.data.baseUrl}/check-in/comment`,
             method: 'POST',
             header: { 'content-type': 'application/json' },
