@@ -1,62 +1,92 @@
+const config = require('./config');
+
 App({
+    globalData: { userInfo: null, authToken: '', baseUrl: config.baseUrl, recommendationVersion: 0 },
+
     onLaunch() {
-      // 启动时从缓存读取用户信息
-      const cacheUserInfo = wx.getStorageSync('userInfo');
-      if (cacheUserInfo && cacheUserInfo.userId) {
-        this.globalData.userInfo = cacheUserInfo;
-      } else {
+        const session = wx.getStorageSync('session');
+        if (session && session.token && session.expiresAt > Date.now() && session.userInfo) {
+            this.globalData.authToken = session.token;
+            this.globalData.userInfo = session.userInfo;
+            wx.setStorageSync('userInfo', session.userInfo);
+        } else {
+            this.clearSession();
+        }
+    },
+
+    setSession(identity) {
+        if (!identity || !identity.userId || !identity.token || !(identity.expiresAt > Date.now())) {
+            throw new Error('登录返回的会话无效，请重试');
+        }
+        const userInfo = { userId: Number(identity.userId), userName: identity.userName, status: '正常' };
+        this.globalData.userInfo = userInfo;
+        this.globalData.authToken = identity.token;
+        wx.setStorageSync('session', { token: identity.token, expiresAt: identity.expiresAt, userInfo });
+        wx.setStorageSync('userInfo', userInfo);
+        this.markRecommendationsChanged();
+    },
+
+    clearSession() {
+        this.globalData.authToken = '';
         this.globalData.userInfo = null;
-      }
+        wx.removeStorageSync('session');
+        wx.removeStorageSync('userInfo');
+        this.markRecommendationsChanged();
     },
-  
-    globalData: {
-      userInfo: null,
-      baseUrl: 'http://127.0.0.1:8080'
+
+    markRecommendationsChanged() {
+        this.globalData.recommendationVersion++;
     },
-  
-    /**
-     * 封装的 wx.request 方法
-     * @param {Object} options - 请求配置项
-     * @returns {Promise} - 返回一个 Promise 对象
-     */
+
+    getAuthHeader() {
+        const session = wx.getStorageSync('session');
+        if (session && session.expiresAt <= Date.now()) this.clearSession();
+        return this.globalData.authToken ? { Authorization: 'Bearer ' + this.globalData.authToken } : {};
+    },
+
+    handleUnauthorized(response, requestToken) {
+        if (response.statusCode === 401 && requestToken && requestToken === this.globalData.authToken) {
+            this.clearSession();
+            wx.showToast({ title: '登录已失效，请重新登录', icon: 'none' });
+        }
+    },
+
+    // Preserve the native RequestTask, including chunked AI responses.
+    rawRequest(options) {
+        const isLogin = /\/sysuser\/(login|register)$/.test(options.url);
+        const header = { ...options.header, ...(isLogin ? {} : this.getAuthHeader()) };
+        const requestToken = this.globalData.authToken;
+        return wx.request({ ...options, header, success: response => {
+            this.handleUnauthorized(response, requestToken);
+            if (options.success) options.success(response);
+        } });
+    },
+
+    uploadFile(options) {
+        const header = { ...options.header, ...this.getAuthHeader() };
+        const requestToken = this.globalData.authToken;
+        return wx.uploadFile({ ...options, header, success: response => {
+            this.handleUnauthorized(response, requestToken);
+            if (options.success) options.success(response);
+        } });
+    },
+
     request({ url, method = 'GET', data = {}, header = {} }) {
-      return new Promise((resolve, reject) => {
-        const fullUrl = `${this.globalData.baseUrl}/AncientCharmOfFujianStyle${url}` ;
-  
-        let finalHeader = {
-          'content-type': 'application/json',
-          ...header
-        };
-  
-        wx.request({
-          url: fullUrl,
-          method: method,
-          data: data,
-          header: finalHeader,
-          success: (res) => {
-            // 1. 首先处理 HTTP 状态码
-            if (res.statusCode !== 200) {
-              return reject({ httpStatus: res.statusCode, msg: res.data?.msg || '网络请求失败' });
-            }
-  
-            // 2. 处理业务状态码
-            const responseData = res.data;
-  
-            if (responseData.code === 200) { // 业务成功
-              resolve(responseData);
-            } else { 
-              reject({
-                httpStatus: 200, 
-                msg: responseData.msg || '操作失败',
-                originalData: responseData 
-              });
-            }
-          },
-          fail: (err) => {
-            // 3. 处理网络层面的错误，如超时、无网络
-            reject({ msg: '网络异常，请检查网络连接', originalError: err });
-          }
+        return new Promise((resolve, reject) => {
+            this.rawRequest({
+                url: this.globalData.baseUrl + '/AncientCharmOfFujianStyle' + url,
+                method, data, header: { 'content-type': 'application/json', ...header },
+                success: response => {
+                    if (response.statusCode !== 200) {
+                        reject({ httpStatus: response.statusCode, msg: response.data?.msg || '请求失败，请重试' });
+                    } else if (response.data && response.data.code === 200) {
+                        resolve(response.data);
+                    } else {
+                        reject({ httpStatus: 200, msg: response.data?.msg || '操作失败' });
+                    }
+                },
+                fail: () => reject({ msg: '网络异常，请检查网络连接' })
+            });
         });
-      });
     }
-  });
+});

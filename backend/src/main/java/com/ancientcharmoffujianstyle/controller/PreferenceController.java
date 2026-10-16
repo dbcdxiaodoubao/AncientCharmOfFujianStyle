@@ -3,6 +3,7 @@ package com.ancientcharmoffujianstyle.controller;
 import com.ancientcharmoffujianstyle.domain.entity.UserPreference;
 import com.ancientcharmoffujianstyle.service.IUserPreferenceService;
 import com.ancientcharmoffujianstyle.utils.ApiResponse;
+import com.ancientcharmoffujianstyle.security.CurrentUser;
 import io.swagger.annotations.Api;
 import io.swagger.annotations.ApiOperation;
 import org.springframework.web.bind.annotation.GetMapping;
@@ -26,6 +27,7 @@ public class PreferenceController {
     @GetMapping("/{userId}")
     @ApiOperation("读取用户偏好")
     public ApiResponse<UserPreference> get(@PathVariable Long userId) {
+        CurrentUser.requireSelf(userId);
         try {
             return ApiResponse.success(preferenceService.getPreference(userId));
         } catch (IllegalArgumentException exception) {
@@ -36,6 +38,7 @@ public class PreferenceController {
     @PostMapping
     @ApiOperation("保存用户偏好")
     public ApiResponse<Void> save(@RequestBody UserPreference preference) {
+        preference.setUserId(CurrentUser.requireSelf(preference.getUserId()));
         try {
             preferenceService.savePreference(preference);
             return ApiResponse.success();

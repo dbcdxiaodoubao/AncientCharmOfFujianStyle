@@ -45,6 +45,7 @@ public class PlanningController extends WebController {
 
     private static void addEdge(int[][] adj, int from, int to) {
         adj[from][to] = 1;
+        adj[to][from] = 1;
     }
 
     /**
@@ -77,7 +78,7 @@ public class PlanningController extends WebController {
             }
         }
 
-        return Collections.singletonList(start);
+        return Collections.emptyList();
     }
 
     private List<Integer> reconstructPath(int[] prev, int start, int end) {
@@ -95,12 +96,14 @@ public class PlanningController extends WebController {
         int end = planQuery.getEnd().intValue();
 
         List<Integer> cityPath = findShortestPath(start, end);
+        if (cityPath.isEmpty()) return ApiResponse.error("出发和结束城市之间暂无可用路线", null);
 
         List<PlanListVo> result = new ArrayList<>();
         long order = 1L;
 
         for (Integer cityId : cityPath) {
             List<FyinfoListVo> cityItems = fyinfoService.listByCity((long) cityId);
+            if (cityItems == null) continue;
             int count = 0;
             for (FyinfoListVo item : cityItems) {
                 if (count >= 2) break;
@@ -121,6 +124,6 @@ public class PlanningController extends WebController {
             return ApiResponse.error("未找到该路线上的非遗项目", null);
         }
 
-        return ApiResponse.success(result);
+        return ApiResponse.success(start == end ? "已生成同城非遗路线" : "路线规划成功", result);
     }
 }

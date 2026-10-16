@@ -15,6 +15,11 @@ import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
+import java.util.Collections;
+import com.ancientcharmoffujianstyle.domain.vo.SysUserDtlVo;
+import com.ancientcharmoffujianstyle.domain.vo.SysUserListVo;
+import com.ancientcharmoffujianstyle.security.AuthSessionService;
+import com.ancientcharmoffujianstyle.security.CurrentUser;
 
 @RestController
 @RequestMapping("/sysuser")
@@ -24,13 +29,15 @@ public class SysUserController extends WebController {
     @Autowired
     ISysUserService iSysUserService;
 
+    @Autowired
+    AuthSessionService sessions;
+
     @GetMapping("/list")
     @ApiOperation("查询用户信息列表")
-    public ApiResponse<List<SysUser>> list() {
-
-        List<SysUser> list = iSysUserService.list();
-
-        return ApiResponse.success(list);
+    public ApiResponse<List<SysUserListVo>> list() {
+        // This application has no administrator role: expose only the current account.
+        SysUser user = iSysUserService.getById(CurrentUser.requireId());
+        return ApiResponse.success(Collections.singletonList(SysUserMapping.INSTANCE.toListVo(user)));
     }
 
     @PostMapping("/login")
@@ -40,7 +47,15 @@ public class SysUserController extends WebController {
             return ApiResponse.error("账号或密码错误",null);
         }
 
-        return ApiResponse.success(iSysUserService.getLoginVo(loginQuery.getUserName()));
+        return ApiResponse.success(sessions.issue(iSysUserService.getLoginVo(loginQuery.getUserName())));
+    }
+
+    @PostMapping("/logout")
+    @ApiOperation("退出并撤销当前会话")
+    public ApiResponse<Void> logout(@RequestHeader("Authorization") String authorization) {
+        CurrentUser.requireId();
+        sessions.revoke(authorization.substring(7));
+        return ApiResponse.success();
     }
 
     @PostMapping("/register")
@@ -57,14 +72,13 @@ public class SysUserController extends WebController {
 
     @GetMapping("/{id}")
     @ApiOperation("用户详情")
-    public ApiResponse<SysUser> dtl(@PathVariable @Validated Long id){
+    public ApiResponse<SysUserDtlVo> dtl(@PathVariable @Validated Long id){
+        CurrentUser.requireSelf(id);
         if (id<=0){
             return ApiResponse.error("id错误",null);
         }
         SysUser byId = iSysUserService.getById(id);
-        SysUserMapping.INSTANCE.toDtlVo(byId);
-
-        return ApiResponse.success(byId);
+        return ApiResponse.success(SysUserMapping.INSTANCE.toDtlVo(byId));
     }
 
 }

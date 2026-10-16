@@ -32,12 +32,20 @@ class UserActivityControllerTest {
 
     @BeforeEach
     void setUp() {
+        org.springframework.security.core.context.SecurityContextHolder.getContext().setAuthentication(
+                new org.springframework.security.authentication.UsernamePasswordAuthenticationToken(1L, null,
+                        Collections.emptyList()));
         favoriteService = mock(IUserFavoriteService.class);
         preferenceService = mock(IUserPreferenceService.class);
         mockMvc = MockMvcBuilders.standaloneSetup(
                 new FavoriteController(favoriteService),
                 new PreferenceController(preferenceService))
                 .build();
+    }
+
+    @org.junit.jupiter.api.AfterEach
+    void clearAuthentication() {
+        org.springframework.security.core.context.SecurityContextHolder.clearContext();
     }
 
     @Test

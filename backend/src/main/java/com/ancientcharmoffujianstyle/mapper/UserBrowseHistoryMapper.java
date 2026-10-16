@@ -16,5 +16,10 @@ public interface UserBrowseHistoryMapper extends BaseMapper<UserBrowseHistory> {
      * @param userId 用户id
      * @return 浏览记录列表
      */
-    List<UserBrowseHistory> selectRecent30DaysByUserId(@Param("userId") Long userId);
+    default List<UserBrowseHistory> selectRecent30DaysByUserId(Long userId) {
+        return selectSince(userId, java.time.LocalDateTime.now().minusDays(30));
+    }
+
+    List<UserBrowseHistory> selectSince(@Param("userId") Long userId,
+                                      @Param("since") java.time.LocalDateTime since);
 }

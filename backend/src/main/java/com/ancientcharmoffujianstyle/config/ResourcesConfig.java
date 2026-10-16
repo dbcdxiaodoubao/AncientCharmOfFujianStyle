@@ -14,6 +14,7 @@ public class ResourcesConfig implements WebMvcConfigurer {
     @Override
     public void addResourceHandlers(ResourceHandlerRegistry registry) {
         registry.addResourceHandler("/images/**")
-                .addResourceLocations("file:" + uploadPath);
+                .addResourceLocations(java.nio.file.Paths.get(uploadPath).toAbsolutePath().normalize()
+                        .toUri().toString().replaceAll("/+$", "") + "/");
     }
 }

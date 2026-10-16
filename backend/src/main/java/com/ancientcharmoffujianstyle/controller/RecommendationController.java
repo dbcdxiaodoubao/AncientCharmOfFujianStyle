@@ -12,6 +12,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import java.util.List;
+import com.ancientcharmoffujianstyle.security.CurrentUser;
 
 @RestController
 @RequestMapping("/recommendation")
@@ -27,8 +28,9 @@ public class RecommendationController {
     @GetMapping
     @ApiOperation("获取个性化非遗推荐")
     public ApiResponse<List<RecommendationVo>> recommend(@RequestParam(required = false) Long userId) {
+        Long verifiedUserId = CurrentUser.optionalSelf(userId);
         try {
-            return ApiResponse.success(recommendationService.recommend(userId));
+            return ApiResponse.success(recommendationService.recommend(verifiedUserId));
         } catch (IllegalArgumentException exception) {
             return ApiResponse.error(exception.getMessage(), null);
         }
@@ -37,6 +39,7 @@ public class RecommendationController {
     @PostMapping("/browse")
     @ApiOperation("记录非遗浏览足迹")
     public ApiResponse<Void> recordBrowse(@RequestParam Long userId, @RequestParam Long fyId) {
+        CurrentUser.requireSelf(userId);
         try {
             recommendationService.recordBrowse(userId, fyId);
             return ApiResponse.success();

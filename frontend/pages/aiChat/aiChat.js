@@ -183,7 +183,7 @@ Page({
         const userId = userInfo.userId || null;
         const url = app.globalData.baseUrl + '/AncientCharmOfFujianStyle/ai/chat';
 
-        const task = wx.request({
+        const task = getApp().rawRequest({
             url,
             method: 'POST',
             header: { 'content-type': 'application/json' },

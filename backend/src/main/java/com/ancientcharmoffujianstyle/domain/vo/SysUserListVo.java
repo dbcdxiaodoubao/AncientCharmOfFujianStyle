@@ -12,8 +12,6 @@ public class SysUserListVo {
   private Long userId;
   @ApiModelProperty("用户名")
   private String userName;
-  @ApiModelProperty("密码")
-  private String password;
   @ApiModelProperty("创建时间")
   private java.sql.Timestamp createTime;
   @ApiModelProperty("状态")

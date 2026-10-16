@@ -29,6 +29,11 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import com.ancientcharmoffujianstyle.security.CurrentUser;
+import com.ancientcharmoffujianstyle.service.IFyinfoService;
+import org.springframework.http.HttpStatus;
+import org.springframework.web.server.ResponseStatusException;
+import com.baomidou.mybatisplus.core.conditions.query.LambdaQueryWrapper;
 
 @RestController
 @RequestMapping("/check-in")
@@ -44,12 +49,16 @@ public class CheckInController extends WebController {
     @Autowired
     CheckInInteractionService interactionService;
 
+    @Autowired
+    IFyinfoService fyinfoService;
+
     @GetMapping("/byuser")
     @ApiOperation("查询打卡信息列表(通过发布者id)")
     public PageDataset<List<CheckInListVo>> checkInList(@Validated PageQuery pageQuery, Integer userId) {
+        Long verifiedId = CurrentUser.requireSelf(userId == null ? null : userId.longValue());
         Page<CheckInListVo> page = PageHelper.startPage(pageQuery.getPageNum(), pageQuery.getPageSize());
 
-        List<CheckInListVo> list = checkInService.selectList(userId);
+        List<CheckInListVo> list = checkInService.selectList(Math.toIntExact(verifiedId));
 
         return wrapPageResult(page.getResult(),page.getTotal());
     }
@@ -77,27 +86,37 @@ public class CheckInController extends WebController {
     @PostMapping("/upload")
     @ApiOperation("上传打卡")
     public ApiResponse upload(@RequestParam("image") MultipartFile imageFile
-            ,CheckInQuery checkInQuery) throws IOException {
-        String url= null;
+            ,@Validated CheckInQuery checkInQuery) {
+        checkInQuery.setUserId(CurrentUser.requireSelf(checkInQuery.getUserId()));
+        if (fyinfoService.getById(checkInQuery.getFyId()) == null) {
+            throw new IllegalArgumentException("非遗项目不存在");
+        }
+        String url;
         try {
             url = uploadUtil.uploadImage(imageFile,checkInQuery);
+        } catch (IOException exception) {
+            logger.warn("Check-in image upload failed", exception);
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "图片保存失败，请重试");
         }
-       catch (Exception e){
-            e.printStackTrace();
-       }
-
         CheckIn create = CheckInMapping.INSTANCE.toCreate(checkInQuery);
         create.setPictureUrl(url);
-        checkInService.save(create);
+        if (!checkInService.save(create)) {
+            throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, "打卡保存失败，请重试");
+        }
 
         return ApiResponse.success();
     }
 
     @DeleteMapping
     @ApiOperation("删除打卡记录(因为他修改打卡还要重新上传图片好麻烦，直接不让改想改就删了重发)")
-    public ApiResponse delete(Integer id){
-        checkInService.removeById(id);
-
+    public ApiResponse delete(@RequestParam Long id){
+        Long userId = CurrentUser.requireId();
+        CheckIn record = checkInService.getById(id);
+        if (record == null) throw new ResponseStatusException(HttpStatus.NOT_FOUND, "打卡记录不存在");
+        if (!userId.equals(record.getUserId())) {
+            throw new ResponseStatusException(HttpStatus.FORBIDDEN, "只能删除自己的打卡");
+        }
+        checkInService.remove(new LambdaQueryWrapper<CheckIn>().eq(CheckIn::getId, id).eq(CheckIn::getUserId, userId));
         return ApiResponse.success();
     }
 
@@ -110,6 +129,7 @@ public class CheckInController extends WebController {
     @PostMapping("/like")
     @ApiOperation("点赞/取消点赞")
     public ApiResponse<Map<String, Object>> toggleLike(@RequestParam Long checkinId, @RequestParam Long userId) {
+        CurrentUser.requireSelf(userId);
         try {
             return ApiResponse.success(interactionService.toggleLike(checkinId, userId));
         } catch (IllegalArgumentException exception) {
@@ -121,6 +141,7 @@ public class CheckInController extends WebController {
     @ApiOperation("查询当前用户在指定打卡范围内点赞过的记录id")
     public ApiResponse<List<Long>> liked(@RequestParam Long userId,
                                          @RequestParam(required = false) String checkinIds) {
+        CurrentUser.requireSelf(userId);
         return ApiResponse.success(interactionService.likedCheckinIds(userId, parseIds(checkinIds)));
     }
 
@@ -133,6 +154,7 @@ public class CheckInController extends WebController {
     @PostMapping("/comment")
     @ApiOperation("发表评论")
     public ApiResponse<CheckInCommentVo> comment(@RequestBody CommentQuery query) {
+        query.setUserId(CurrentUser.requireSelf(query.getUserId()));
         try {
             return ApiResponse.success(interactionService.addComment(
                     query.getCheckinId(), query.getUserId(), query.getContent()));

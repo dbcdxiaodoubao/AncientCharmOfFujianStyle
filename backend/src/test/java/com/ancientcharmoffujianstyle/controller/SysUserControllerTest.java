@@ -26,7 +26,7 @@ class SysUserControllerTest {
         sysUserService = mock(ISysUserService.class);
         SysUserController controller = new SysUserController();
         controller.iSysUserService = sysUserService;
-        mockMvc = MockMvcBuilders.standaloneSetup(controller).build();
+        mockMvc = MockMvcBuilders.standaloneSetup(controller).setControllerAdvice(new ApiExceptionHandler()).build();
     }
 
     @Test

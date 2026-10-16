@@ -1,6 +1,6 @@
 <view class="detail-container">
     <view class="detail-header">
-        <image src="{{item.pictureUrl}}" class="detail-image" mode="aspectFill" binderror="onImageError" bindtap="onImageTap" data-image="{{item.pictureUrl}}" />
+        <image wx:if="{{item.pictureUrl}}" src="{{item.pictureUrl}}" class="detail-image" mode="aspectFill" binderror="onImageError" bindtap="onImageTap" data-image="{{item.pictureUrl}}" />
         <view class="detail-title-section">
             <text class="detail-title">{{item.name}}</text>
             <text class="detail-category">{{item.cityName}} | {{item.level}}</text>

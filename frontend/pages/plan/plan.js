@@ -63,7 +63,7 @@ Page({
 
         try {
             const res = await new Promise((resolve, reject) => {
-                wx.request({
+                getApp().rawRequest({
                     url: `${getApp().globalData.baseUrl}/AncientCharmOfFujianStyle/plan`,
                     method: 'POST', 
                     header: { 
@@ -82,10 +82,12 @@ Page({
 
             const levelMap = { 1: '世界级', 2: '国家级', 3: '省级', 4: '市级', 5: '县级' };
             const cityMap = { 1: '漳州市', 2: '厦门市', 3: '泉州市', 4: '莆田市', 5: '福州市', 6: '宁德市', 7: '南平市', 8: '三明市', 9: '龙岩市' };
-            const processedData = (res.data.data || []).map(item => ({
+            const processedData = (Array.isArray(res.data?.data) ? res.data.data : []).map(item => ({
                 ...item,
                 cityName: cityMap[item.city] || '未知城市', // 补充城市名称
-                levelName: levelMap[item.level] || '未知级别' // 补充级别名称
+                levelName: levelMap[item.level] || '未知级别',
+                pictureUrl: /^https?:\/\//i.test(item.pictureUrl || '') ? item.pictureUrl
+                    : (item.pictureUrl ? `${this.data.baseUrl}/${item.pictureUrl.replace(/^\/+/, '')}` : '')
             }));
             
             this.setData({
@@ -110,7 +112,7 @@ Page({
         } catch (error) {
             console.warn('路线规划接口请求失败:', error);
             wx.showToast({
-                title: '请确认：1.公网后端服务已启动 2.勾选不校验合法域名',
+                title: '路线暂时无法生成，请检查网络后重试',
                 icon: 'none',
                 duration: 5000
             });
