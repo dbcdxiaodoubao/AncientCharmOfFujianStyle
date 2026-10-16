@@ -1,6 +1,8 @@
-<view class="user-detail-container container">
+<view class="user-detail-container container page-shell">
+<view class="page-hero"><image class="hero-art" src="/images/ui/fujian-landscape.jpg" mode="aspectFit" aria-hidden="true" /><view class="hero-copy"><text class="hero-eyebrow">福建 · 我的足迹</text><text class="hero-title">我的</text><text class="hero-subtitle">在山海之间，收藏一份热爱</text></view></view>
     <!-- 用户信息展示 -->
-    <view class="info-card">
+    <view class="info-card glass-card">
+        <view class="profile-heading"><view class="profile-avatar" aria-hidden="true">闽</view><view class="profile-heading-copy"><text class="profile-name">{{userInfo.userName}}</text><text class="section-caption">把足迹留在福建，把热爱留给传承</text></view></view>
         <view class="info-item">
             <text class="label">用户ID：</text>
             <text class="value">{{userInfo.userId}}</text>
@@ -15,7 +17,7 @@
         </view>
     </view>
 
-    <view class="profile-section">
+    <view class="profile-section glass-card">
         <view class="section-head">
             <text class="section-title">我的收藏</text>
             <text class="section-caption">点击查看非遗项目详情</text>
@@ -28,7 +30,7 @@
         </view>
     </view>
 
-    <view class="profile-section">
+    <view class="profile-section glass-card">
         <view class="section-head">
             <text class="section-title">推荐偏好</text>
             <text class="section-caption">选择后保存，用于个性化推荐</text>
@@ -47,7 +49,7 @@
         </view>
     </view>
     <!-- 功能列表 -->
-    <view class="func-list">
+    <view class="func-list glass-card">
         <view class="func-item" bindtap="showUserListManual" disabled="{{loading}}">
             <view class="func-icon userlist-icon"></view>
             <text class="func-text">账户信息</text>

@@ -1,4 +1,5 @@
 <view class="chat-container">
+    <view class="chat-heading"><text class="chat-heading-mark">AI</text><view><text class="section-title">山海小助手</text><text class="section-caption">聊非遗 · 问路线 · 寻风物</text></view></view>
     <scroll-view class="msg-list" scroll-y scroll-into-view="{{scrollToId}}" scroll-with-animation>
         <view wx:for="{{messages}}" wx:key="key" id="msg-{{index}}" class="msg-row {{item.role}}">
             <view class="avatar {{item.role}}">{{item.role === 'user' ? '我' : 'AI'}}</view>

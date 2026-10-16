@@ -1,6 +1,8 @@
-<view class="detail-container">
-    <view class="detail-header">
+<view class="detail-container page-shell">
+<view class="page-hero"><image class="hero-art" src="/images/ui/fujian-landscape.jpg" mode="aspectFit" aria-hidden="true" /><view class="hero-copy"><text class="hero-eyebrow">福建 · 非遗档案</text><text class="hero-title">非遗详情</text><text class="hero-subtitle">读懂一门手艺，走近一方水土</text></view></view>
+    <view class="detail-header glass-card">
         <image wx:if="{{item.pictureUrl}}" src="{{item.pictureUrl}}" class="detail-image" mode="aspectFill" binderror="onImageError" bindtap="onImageTap" data-image="{{item.pictureUrl}}" />
+        <view wx:elif="{{item && !item.pictureUrl}}" class="art-placeholder detail-image" aria-label="暂无项目照片，分类示意"><text class="placeholder-glyph">艺</text><text class="placeholder-note">示意</text></view>
         <view class="detail-title-section">
             <text class="detail-title">{{item.name}}</text>
             <text class="detail-category">{{item.cityName}} | {{item.level}}</text>
@@ -8,7 +10,8 @@
         </view>
     </view>
 
-    <view class="detail-content">
+    <view class="detail-content glass-card">
+        <text class="section-title detail-section-title">关于这份传承</text>
         <view class="detail-description">
             <rich-text 
                 class="description-text" 

@@ -11,40 +11,41 @@
     "pages/myCheckIn/myCheckIn"
   ],
   "window": {
-    "navigationBarTextStyle": "white",
+    "navigationBarTextStyle": "black",
     "navigationBarTitleText": "古韵闽风",
-    "navigationBarBackgroundColor": "#9F6B65",
-    "backgroundTextStyle": "light"
+    "navigationBarBackgroundColor": "#F0EBE3",
+    "backgroundTextStyle": "dark",
+    "backgroundColor": "#F0EBE3"
   },
   "tabBar": {
-    "color": "#cccccc",
-    "selectedColor": "#ffffff",
-    "backgroundColor": "#9F6B65",
-    "borderStyle": "black",
+    "color": "#857D70",
+    "selectedColor": "#596638",
+    "backgroundColor": "#FAF8F2",
+    "borderStyle": "white",
     "list": [
       {
         "pagePath": "pages/index/index",
         "text": "非遗列表",
-        "iconPath": "images/tab/map.png",
-        "selectedIconPath": "images/tab/map-on.png"
+        "iconPath": "images/ui/map.png",
+        "selectedIconPath": "images/ui/map-on.png"
       },
       {
         "pagePath": "pages/plan/plan",
         "text": "路线规划",
-        "iconPath": "images/tab/plan.png",
-        "selectedIconPath": "images/tab/plan-on.png"
+        "iconPath": "images/ui/plan.png",
+        "selectedIconPath": "images/ui/plan-on.png"
       },
       {
         "pagePath": "pages/checkIn/checkIn",
         "text": "打卡查询",
-        "iconPath": "images/tab/check.png",
-        "selectedIconPath": "images/tab/check-on.png"
+        "iconPath": "images/ui/check.png",
+        "selectedIconPath": "images/ui/check-on.png"
       },
       {
         "pagePath": "pages/userDetail/userDetail",
         "text": "我的",
-        "iconPath": "images/tab/me.png",
-        "selectedIconPath": "images/tab/me-on.png"
+        "iconPath": "images/ui/me.png",
+        "selectedIconPath": "images/ui/me-on.png"
       }
     ]
   },

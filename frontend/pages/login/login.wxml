@@ -1,7 +1,15 @@
 <view class="login-container">
+  <view class="auth-hero">
+    <image class="hero-art" src="/images/ui/fujian-landscape.jpg" mode="aspectFit" aria-hidden="true" />
+    <view class="auth-heading">
+    <text class="hero-eyebrow">福建 · 非遗寻踪</text>
   <!-- 标题 -->
   <view class="title">古韵闽风</view>
-  <view class="subtitle">把 你 的 足 迹 留 在 福 建</view>
+  <view class="subtitle">把你的足迹留在福建</view>
+    </view>
+  </view>
+  <view class="auth-panel glass-card">
+    <text class="auth-panel-title">欢迎回来</text>
   <!-- 账号输入 -->
   <view class="input-item">
     <text class="input-label">用户名：</text>
@@ -29,4 +37,5 @@
   <!-- 功能按钮 -->
   <button class="login-btn" bindtap="handleLogin" loading="{{showLoading}}" disabled="{{showLoading}}">登录</button>
 <button class="register-btn" bindtap="gotoRegister" disabled="{{showLoading}}">前往注册</button>
+  </view>
 </view>

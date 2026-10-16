@@ -224,20 +224,22 @@ Page({
                 series: [{
                     type: 'map',
                     map: 'fujian',
-                    zoom: 1.2,
-                    center: [118.5, 26.0],
+                    zoom: 1,
+                    layoutCenter: ['50%', '50%'],
+                    layoutSize: '94%',
                     label: {
                         show: true,
-                        color: '#333',
-                        fontSize: 12,
+                        color: '#454b3b',
+                        fontSize: 11,
+                        formatter: params => params.name.replace(/市$/, ''),
                         fontWeight: '500'
                     },
                     itemStyle: {
-                        areaColor: '#ffffff',
-                        borderColor: '#40a9ff',
-                        borderWidth: 1.5,
-                        shadowBlur: 10,
-                        shadowColor: 'rgba(64, 169, 255, 0.3)'
+                        areaColor: '#d4c5a9',
+                        borderColor: '#faf8f2',
+                        borderWidth: 1.2,
+                        shadowBlur: 5,
+                        shadowColor: 'rgba(107, 99, 86, 0.12)'
                     },
                     emphasis: {
                         label: {
@@ -245,18 +247,22 @@ Page({
                             color: '#fff',
                             fontSize: 14,
                             fontWeight: 'bold',
-                            textShadowBlur: 10,
-                            textShadowColor: 'rgba(0, 0, 0, 0.5)'
+                            textShadowBlur: 2,
+                            textShadowColor: 'rgba(56, 60, 48, 0.2)'
                         },
                         itemStyle: {
-                            areaColor: '#FF6B35',
-                            borderColor: '#FF8C69',
+                            areaColor: '#596638',
+                            borderColor: '#faf8f2',
                             borderWidth: 2,
-                            shadowBlur: 20,
-                            shadowColor: 'rgba(255, 107, 53, 0.5)'
+                            shadowBlur: 8,
+                            shadowColor: 'rgba(89, 102, 56, 0.18)'
                         }
                     },
-                    data: Object.keys(CITY_NAME_TO_ID).map(name => ({ name, value: 0 })),
+                    data: Object.keys(CITY_NAME_TO_ID).map((name, index) => ({
+                        name,
+                        value: 0,
+                        itemStyle: { areaColor: ['#c4cdb8', '#c4a882', '#b1bfa3', '#d4c5a9', '#a6b3a7', '#d4c8b8', '#c4c7b7', '#c8b69b', '#b5bfaa'][index] }
+                    })),
                     animationDuration: 1000,
                     animationEasing: 'cubicOut'
                 }]

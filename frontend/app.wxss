@@ -1,12 +1,27 @@
+/* Quiet paper, sage and clay. Solid surfaces are the fallback for blur. */
 page {
-    background-color: #f5f5f5;
-    font-size: 28rpx;
-  }
-  
-  button {
-    border: none;
-  }
-  
-  button::after {
-    border: none;
-  }
+    --paper: #f0ebe3; --ink: #383c30; --muted: #716b60; --olive: #596638;
+    --sage: #a6b3a7; --clay: #a0522d; --line: rgba(139,125,107,.18);
+    --shadow: 0 8rpx 28rpx rgba(107,99,86,.07);
+    background: #f0ebe3; color: #383c30; font-size: 28rpx; line-height: 1.6;
+    font-family: -apple-system, BlinkMacSystemFont, 'PingFang SC', 'Microsoft YaHei', sans-serif;
+}
+button { border: 0; box-sizing: border-box; font-weight: 500; }
+button::after { border: 0; }
+button[disabled] { opacity: .5; }
+button:active { opacity: .84; }
+.page-shell { padding: 0 28rpx 48rpx; box-sizing: border-box; min-height: 100vh; }
+.page-hero { position: relative; min-height: 236rpx; padding: 36rpx 8rpx 30rpx; box-sizing: border-box; overflow: hidden; }
+.hero-art { position: absolute; top: -92rpx; right: -28rpx; width: 750rpx; height: 500rpx; opacity: .8; pointer-events: none; }
+.hero-copy { position: relative; z-index: 1; max-width: 94%; }
+.hero-eyebrow { display: block; color: #716b60; font-size: 22rpx; letter-spacing: 5rpx; margin-bottom: 10rpx; }
+.hero-title { display: block; color: #383c30; font-family: 'Songti SC', 'STSong', 'SimSun', serif; font-size: 46rpx; font-weight: 700; line-height: 1.45; letter-spacing: 2rpx; }
+.hero-subtitle { display: block; margin-top: 12rpx; color: #6b6356; font-size: 24rpx; line-height: 1.6; }
+.section-title { display: block; color: #383c30; font-family: 'Songti SC', 'STSong', 'SimSun', serif; font-size: 34rpx; font-weight: 700; line-height: 1.5; }
+.section-caption, .section-subtitle { display: block; margin-top: 6rpx; color: #716b60; font-size: 23rpx; line-height: 1.6; }
+.glass-card { background: rgba(255,253,248,.9); border: 1rpx solid rgba(255,255,255,.95); border-radius: 28rpx; box-shadow: var(--shadow); -webkit-backdrop-filter: blur(16px); backdrop-filter: blur(16px); }
+.art-placeholder { position: relative; display: flex; align-items: center; justify-content: center; flex-shrink: 0; overflow: hidden; background: linear-gradient(145deg,#e8e5d9,#d7dece); border: 1rpx solid rgba(255,255,255,.8); box-sizing: border-box; }
+.placeholder-glyph { color: #758363; font-family: 'Songti SC', 'STSong', serif; font-size: 60rpx; line-height: 1; }
+.placeholder-note { position: absolute; right: 8rpx; bottom: 6rpx; color: #596149; font-size: 18rpx; line-height: 1.5; }
+.loading-tip, .empty-tip, .error-tip { padding: 48rpx 24rpx; text-align: center; color: #716b60; font-size: 26rpx; box-sizing: border-box; }
+.page-footnote { display: block; padding: 28rpx 0 4rpx; text-align: center; color: #716b60; font-size: 21rpx; letter-spacing: 3rpx; }

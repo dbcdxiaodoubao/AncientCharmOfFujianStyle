@@ -1,4 +1,5 @@
-<view class="feed-page">
+<view class="feed-page page-shell">
+<view class="page-hero"><image class="hero-art" src="/images/ui/fujian-landscape.jpg" mode="aspectFit" aria-hidden="true" /><view class="hero-copy"><text class="hero-eyebrow">福建 · 山海足迹</text><text class="hero-title">打卡拾光</text><text class="hero-subtitle">记录相遇，让热爱留下回声</text></view></view>
     <!-- 非遗标签筛选（标签=非遗id+名称，按打卡数降序）-->
     <view class="tag-bar">
         <view class="tag {{selectedFyId === '' ? 'active' : ''}}" bindtap="onAllTagTap">全部</view>

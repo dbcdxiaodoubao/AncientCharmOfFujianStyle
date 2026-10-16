@@ -1,7 +1,8 @@
-<view class="container">
+<view class="container page-shell">
+<view class="page-hero"><image class="hero-art" src="/images/ui/fujian-landscape.jpg" mode="aspectFit" aria-hidden="true" /><view class="hero-copy"><text class="hero-eyebrow">福建 · 非遗旅程</text><text class="hero-title">路线规划</text><text class="hero-subtitle">串起城市，也串起手艺</text></view></view>
     <view class="main-card">
         <!-- 城市选择区 -->
-        <view class="city-select-panel">
+        <view class="city-select-panel glass-card">
             <view class="select-item">
                 <text class="label">出发城市：</text>
                 <picker mode="selector" range="{{cityList}}" range-key="name" value="{{startCityIndex}}" bindchange="onStartCityChange">
@@ -23,8 +24,10 @@
             </button>
         </view>
 
+        <view class="route-intro" wx:if="{{!hasPlanned}}"><text class="intro-mark">旅</text><text class="intro-title">下一站，遇见传承</text><text class="section-caption">选择出发与结束城市，探索沿途非遗</text></view>
         <!-- 路线展示区 -->
-        <view class="route-panel" wx:if="{{hasPlanned}}">
+        <view class="route-panel glass-card" wx:if="{{hasPlanned}}">
+            <text class="section-title">沿途非遗</text><text class="section-caption">循着城市的脚步，遇见匠心与风物</text>
             <view class="loading-tip" wx:if="{{isLoading}}">
                 <text>路线规划中...</text>
             </view>
@@ -33,7 +36,7 @@
             </view>
             <block wx:for="{{routeList}}" wx:key="id" wx:if="{{!isLoading && routeList.length > 0}}">
                 <view class="station-title">第{{index + 1}}站</view>
-                <view class="info-card" bindtap="onRouteCardTap" data-id="{{item.id}}">
+                <view class="info-card glass-card" bindtap="onRouteCardTap" data-id="{{item.id}}">
                     <view class="info-item">
                         <text class="info-label">非遗名称：</text>
                         <text class="info-value">{{item.name}}</text>

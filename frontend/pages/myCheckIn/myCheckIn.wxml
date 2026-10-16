@@ -1,4 +1,5 @@
-<view class="feed-page">
+<view class="feed-page page-shell">
+<view class="page-hero"><image class="hero-art" src="/images/ui/fujian-landscape.jpg" mode="aspectFit" aria-hidden="true" /><view class="hero-copy"><text class="hero-eyebrow">福建 · 山海足迹</text><text class="hero-title">我的打卡</text><text class="hero-subtitle">每一份记录，都有你的故事</text></view></view>
     <view class="feed">
         <view class="feed-status" wx:if="{{loading}}">正在加载…</view>
         <view class="feed-status" wx:if="{{!loading && list.length === 0}}">你还没有发布过打卡，去打卡墙发一条吧～</view>
