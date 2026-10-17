@@ -28,4 +28,7 @@ public class PlanListVo {
 
     @ApiModelProperty("游玩顺序")
     private Long order;
+
+    @ApiModelProperty("建议游玩天数")
+    private Integer day;
 }

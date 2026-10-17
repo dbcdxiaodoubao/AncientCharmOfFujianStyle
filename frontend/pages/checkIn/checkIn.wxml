@@ -1,16 +1,36 @@
 <view class="feed-page page-shell">
 <view class="page-hero"><image class="hero-art" src="/images/ui/fujian-landscape.jpg" mode="aspectFit" aria-hidden="true" /><view class="hero-copy"><text class="hero-eyebrow">福建 · 山海足迹</text><text class="hero-title">打卡拾光</text><text class="hero-subtitle">记录相遇，让热爱留下回声</text></view></view>
     <!-- 非遗标签筛选（标签=非遗id+名称，按打卡数降序）-->
-    <view class="tag-bar">
-        <view class="tag {{selectedFyId === '' ? 'active' : ''}}" bindtap="onAllTagTap">全部</view>
-        <view class="tag {{selectedFyId === item.fyId ? 'active' : ''}}"
-              wx:for="{{displayTags}}" wx:key="fyId"
-              data-fyid="{{item.fyId}}" bindtap="onTagTap">
-            <text class="tag-name">{{item.fyName}}</text>
-            <text class="tag-count">{{item.count}}</text>
+    <view class="tag-panel">
+        <view class="tag-search">
+            <text class="tag-search-icon">🔍</text>
+            <input class="tag-search-input" placeholder="搜索非遗名称" value="{{tagSearchKey}}"
+                   placeholder-class="tag-search-ph" bindinput="onTagSearchInput" />
         </view>
-        <view class="tag-more" wx:if="{{tags.length > 6}}" bindtap="onToggleTagExpand">
-            {{tagsExpanded ? '收起 ▲' : '展开更多 ▼'}}
+        <view class="tag-bar">
+            <scroll-view wx:if="{{!tagsExpanded}}" class="tag-scroll" scroll-x enhanced show-scrollbar="{{false}}">
+                <view class="tag-row">
+                    <view class="tag {{selectedFyId === '' ? 'active' : ''}}" bindtap="onAllTagTap">全部</view>
+                    <view class="tag {{selectedFyId === item.fyId ? 'active' : ''}}"
+                          wx:for="{{filteredTags}}" wx:key="fyId"
+                          data-fyid="{{item.fyId}}" bindtap="onTagTap">
+                        <text class="tag-name">{{item.fyName}}</text>
+                        <text class="tag-count">{{item.count}}</text>
+                    </view>
+                </view>
+            </scroll-view>
+            <view wx:else class="tag-wrap">
+                <view class="tag {{selectedFyId === '' ? 'active' : ''}}" bindtap="onAllTagTap">全部</view>
+                <view class="tag {{selectedFyId === item.fyId ? 'active' : ''}}"
+                      wx:for="{{filteredTags}}" wx:key="fyId"
+                      data-fyid="{{item.fyId}}" bindtap="onTagTap">
+                    <text class="tag-name">{{item.fyName}}</text>
+                    <text class="tag-count">{{item.count}}</text>
+                </view>
+            </view>
+            <view class="tag-toggle" wx:if="{{hasMoreTags}}" bindtap="onToggleTagExpand">
+                {{tagsExpanded ? '收起' : '展开'}}
+            </view>
         </view>
     </view>
 

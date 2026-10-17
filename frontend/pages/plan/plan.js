@@ -16,6 +16,8 @@ Page({
         endCityIndex: -1,   
         selectedStartCity: {}, 
         selectedEndCity: {},   
+        days: 2,
+        transportMinutes: 60,
         isLoading: false, 
         hasPlanned: false,
         routeList: [] // 存储接口返回的非遗路线数据
@@ -43,9 +45,19 @@ Page({
         });
     },
 
+    onDaysInput(e) {
+        const days = Math.max(1, Math.min(14, Number(e.detail.value) || 1));
+        this.setData({ days });
+    },
+
+    onTransportInput(e) {
+        const transportMinutes = Math.max(0, Math.min(720, Number(e.detail.value) || 0));
+        this.setData({ transportMinutes });
+    },
+
     // 生成路线
     async onPlanTap() {
-        const { selectedStartCity, selectedEndCity } = this.data;
+        const { selectedStartCity, selectedEndCity, days, transportMinutes } = this.data;
         
         // 校验城市选择
         if (!selectedStartCity.id || !selectedEndCity.id) {
@@ -62,7 +74,8 @@ Page({
         });
 
         try {
-            const res = await new Promise((resolve, reject) => {
+                const res = await new Promise((resolve, reject) => {
+                const userInfo = getApp().globalData.userInfo || wx.getStorageSync('userInfo') || {};
                 getApp().rawRequest({
                     url: `${getApp().globalData.baseUrl}/AncientCharmOfFujianStyle/plan`,
                     method: 'POST', 
@@ -71,7 +84,10 @@ Page({
                     },
                     data: {
                         start: selectedStartCity.id,  
-                        end: selectedEndCity.id       
+                        end: selectedEndCity.id,
+                        days,
+                        transportMinutes,
+                        userId: userInfo.userId || null
                     },
                     success: resolve,
                     fail: reject

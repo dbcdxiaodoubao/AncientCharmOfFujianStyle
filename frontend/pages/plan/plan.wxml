@@ -19,6 +19,18 @@
                     </view>
                 </picker>
             </view>
+            <view class="plan-options">
+                <view class="plan-option">
+                    <text class="label">游玩天数：</text>
+                    <input class="plan-number-input" type="number" value="{{days}}" bindinput="onDaysInput" />
+                    <text class="plan-unit">天</text>
+                </view>
+                <view class="plan-option">
+                    <text class="label">每天交通：</text>
+                    <input class="plan-number-input" type="number" value="{{transportMinutes}}" bindinput="onTransportInput" />
+                    <text class="plan-unit">分钟</text>
+                </view>
+            </view>
             <button class="plan-btn" bindtap="onPlanTap" loading="{{isLoading}}">
                 生成路线
             </button>
@@ -35,7 +47,7 @@
                 <text>暂无规划路线数据</text>
             </view>
             <block wx:for="{{routeList}}" wx:key="id" wx:if="{{!isLoading && routeList.length > 0}}">
-                <view class="station-title">第{{index + 1}}站</view>
+                <view class="station-title">第{{item.day || 1}}天 · 第{{index + 1}}站</view>
                 <view class="info-card glass-card" bindtap="onRouteCardTap" data-id="{{item.id}}">
                     <view class="info-item">
                         <text class="info-label">非遗名称：</text>

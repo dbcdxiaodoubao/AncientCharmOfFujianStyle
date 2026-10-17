@@ -1,5 +1,4 @@
 const app = getApp();
-const COLLAPSED_TAG_COUNT = 6;
 const CITY_MAP = { 1: '漳州市', 2: '厦门市', 3: '泉州市', 4: '莆田市', 5: '福州市', 6: '宁德市', 7: '南平市', 8: '三明市', 9: '龙岩市' };
 
 const AVATAR_COLORS = ['#9F6B65', '#C08A6A', '#7C9A92', '#8E7CC3', '#B98B85', '#6A8CAF', '#C99A5B', '#A26D8A'];
@@ -29,8 +28,10 @@ function formatMomentTime(value) {
 Page({
     data: {
         tags: [],
-        displayTags: [],
+        filteredTags: [],
+        tagSearchKey: '',
         tagsExpanded: false,
+        hasMoreTags: false,
         selectedFyId: '',
         pageNum: 1,
         pageSize: 10,
@@ -68,20 +69,42 @@ Page({
             method: 'GET',
             success: (res) => {
                 if (res.statusCode === 200 && res.data && (res.data.code === 0 || res.data.code === 200)) {
-                    this.setData({ tags: res.data.data || [] }, () => this.applyTagDisplay());
+                    this.setData({ tags: res.data.data || [] }, () => {
+                        this.applyTagFilter();
+                        setTimeout(() => this.measureTagOverflow(), 60);
+                    });
                 }
             }
         });
     },
 
-    applyTagDisplay() {
-        const { tags, tagsExpanded } = this.data;
-        const displayTags = tagsExpanded ? tags : tags.slice(0, COLLAPSED_TAG_COUNT);
-        this.setData({ displayTags });
+    applyTagFilter() {
+        const key = (this.data.tagSearchKey || '').trim().toLowerCase();
+        const all = this.data.tags || [];
+        const filteredTags = key ? all.filter(tag => (tag.fyName || '').toLowerCase().includes(key)) : all;
+        this.setData({ filteredTags });
+    },
+
+    onTagSearchInput(e) {
+        this.setData({ tagSearchKey: e.detail.value }, () => {
+            this.applyTagFilter();
+            setTimeout(() => this.measureTagOverflow(), 60);
+        });
+    },
+
+    measureTagOverflow() {
+        const query = wx.createSelectorQuery().in(this);
+        query.select('.tag-row').boundingClientRect();
+        query.select('.tag-scroll').boundingClientRect();
+        query.exec(results => {
+            const row = results && results[0];
+            const scroll = results && results[1];
+            this.setData({ hasMoreTags: !!(row && scroll && row.width > scroll.width + 4) });
+        });
     },
 
     onToggleTagExpand() {
-        this.setData({ tagsExpanded: !this.data.tagsExpanded }, () => this.applyTagDisplay());
+        this.setData({ tagsExpanded: !this.data.tagsExpanded });
     },
 
     onTagTap(e) {

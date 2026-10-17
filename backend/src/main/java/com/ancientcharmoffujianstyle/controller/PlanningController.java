@@ -2,8 +2,10 @@ package com.ancientcharmoffujianstyle.controller;
 
 import com.ancientcharmoffujianstyle.controller.base.WebController;
 import com.ancientcharmoffujianstyle.domain.query.PlanQuery;
+import com.ancientcharmoffujianstyle.domain.entity.UserPreference;
 import com.ancientcharmoffujianstyle.domain.vo.FyinfoListVo;
 import com.ancientcharmoffujianstyle.domain.vo.PlanListVo;
+import com.ancientcharmoffujianstyle.mapper.UserPreferenceMapper;
 import com.ancientcharmoffujianstyle.service.IFyinfoService;
 import com.ancientcharmoffujianstyle.utils.ApiResponse;
 import io.swagger.annotations.Api;
@@ -21,6 +23,9 @@ public class PlanningController extends WebController {
 
     @Autowired
     private IFyinfoService fyinfoService;
+
+    @Autowired
+    private UserPreferenceMapper preferenceMapper;
 
     private static final int CITY_COUNT = 10;
 
@@ -94,9 +99,16 @@ public class PlanningController extends WebController {
     public ApiResponse<List<PlanListVo>> plan(@RequestBody @Validated PlanQuery planQuery) {
         int start = planQuery.getStart().intValue();
         int end = planQuery.getEnd().intValue();
+        int days = planQuery.getDays() == null ? 1 : planQuery.getDays();
+        int transportMinutes = planQuery.getTransportMinutes() == null ? 60 : planQuery.getTransportMinutes();
 
         List<Integer> cityPath = findShortestPath(start, end);
         if (cityPath.isEmpty()) return ApiResponse.error("出发和结束城市之间暂无可用路线", null);
+
+        UserPreference preference = planQuery.getUserId() == null
+                ? null : preferenceMapper.selectById(planQuery.getUserId());
+        int visitsPerDay = transportMinutes >= 360 ? 1 : transportMinutes >= 180 ? 2 : 3;
+        int maxItems = Math.max(1, days * visitsPerDay);
 
         List<PlanListVo> result = new ArrayList<>();
         long order = 1L;
@@ -104,9 +116,11 @@ public class PlanningController extends WebController {
         for (Integer cityId : cityPath) {
             List<FyinfoListVo> cityItems = fyinfoService.listByCity((long) cityId);
             if (cityItems == null) continue;
+            cityItems.sort((left, right) -> Integer.compare(
+                    preferenceScore(right, preference), preferenceScore(left, preference)));
             int count = 0;
             for (FyinfoListVo item : cityItems) {
-                if (count >= 2) break;
+                if (count >= 2 || result.size() >= maxItems) break;
                 PlanListVo vo = new PlanListVo();
                 vo.setId(item.getId());
                 vo.setName(item.getName());
@@ -115,9 +129,11 @@ public class PlanningController extends WebController {
                 vo.setType(item.getType());
                 vo.setLevel(item.getLevel());
                 vo.setOrder(order++);
+                vo.setDay((int) ((vo.getOrder() - 1) / visitsPerDay) + 1);
                 result.add(vo);
                 count++;
             }
+            if (result.size() >= maxItems) break;
         }
 
         if (result.isEmpty()) {
@@ -125,5 +141,13 @@ public class PlanningController extends WebController {
         }
 
         return ApiResponse.success(start == end ? "已生成同城非遗路线" : "路线规划成功", result);
+    }
+
+    private int preferenceScore(FyinfoListVo item, UserPreference preference) {
+        if (preference == null || item == null) return 0;
+        int score = 0;
+        if (preference.getCity() != null && preference.getCity().equals(item.getCity())) score += 30;
+        if (preference.getCategory() != null && preference.getCategory().equals(item.getType())) score += 50;
+        return score;
     }
 }
