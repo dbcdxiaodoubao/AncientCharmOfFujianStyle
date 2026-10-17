@@ -31,9 +31,10 @@
                     <text class="plan-unit">分钟</text>
                 </view>
             </view>
-            <button class="plan-btn" bindtap="onPlanTap" loading="{{isLoading}}">
-                生成路线
-            </button>
+            <view class="plan-actions">
+                <button class="plan-btn" bindtap="onPlanTap" loading="{{isLoading}}">生成路线</button>
+                <button class="ai-plan-btn" bindtap="onAiPlanTap">AI推荐</button>
+            </view>
         </view>
 
         <view class="route-intro" wx:if="{{!hasPlanned}}"><text class="intro-mark">旅</text><text class="intro-title">下一站，遇见传承</text><text class="section-caption">选择出发与结束城市，探索沿途非遗</text></view>

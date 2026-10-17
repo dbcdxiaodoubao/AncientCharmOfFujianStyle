@@ -29,6 +29,30 @@
     margin: 18rpx 0 24rpx;
 }
 
+.plan-actions {
+    display: flex;
+    gap: 16rpx;
+    margin-top: 28rpx;
+}
+
+.plan-actions .plan-btn {
+    flex: 1;
+    margin-top: 0;
+}
+
+.ai-plan-btn {
+    flex: 0 0 190rpx;
+    min-height: 90rpx;
+    line-height: 90rpx;
+    margin: 0;
+    padding: 0 16rpx;
+    border: 1rpx solid #a6b3a7;
+    border-radius: 22rpx;
+    background: #e7ebdd;
+    color: #596638;
+    font-size: 28rpx;
+}
+
 .plan-option {
     flex: 1;
     display: flex;

@@ -55,6 +55,26 @@ Page({
         this.setData({ transportMinutes });
     },
 
+    onAiPlanTap() {
+        const { selectedStartCity, selectedEndCity, days, transportMinutes } = this.data;
+        if (!selectedStartCity.id || !selectedEndCity.id) {
+            wx.showToast({ title: '请先选择出发和结束城市', icon: 'none' });
+            return;
+        }
+        const prompt = [
+            '请根据以下路线规划条件，为我设计一份可执行的福建非遗旅行方案。',
+            `出发城市：${selectedStartCity.name}`,
+            `结束城市：${selectedEndCity.name}`,
+            `游玩天数：${days}天`,
+            `每天可接受交通时间：${transportMinutes}分钟`,
+            '请结合我的用户画像（偏好城市、偏好类别、收藏、浏览和打卡记录）进行个性化推荐。',
+            '请按天输出：当天城市顺序、推荐非遗项目、项目间交通安排和当天建议；不要超出游玩天数与每天交通时间。'
+        ].join('\n');
+        wx.navigateTo({
+            url: `/pages/aiChat/aiChat?routePrompt=${encodeURIComponent(prompt)}`
+        });
+    },
+
     // 生成路线
     async onPlanTap() {
         const { selectedStartCity, selectedEndCity, days, transportMinutes } = this.data;

@@ -135,7 +135,7 @@ Page({
         quickPrompts: ['推荐我的专属路线', '福州一日游怎么玩', '福建有哪些国家级非遗', '泉州非遗打卡推荐']
     },
 
-    onLoad() {
+    onLoad(options) {
         this.msgSeq = 0;
         this.byteBuffer = [];
         this.streaming = false;
@@ -143,6 +143,12 @@ Page({
         this.streamingContent = '';
         this.currentTask = null;
         this.pushMessage('assistant', '你好，我是「古韵闽风」福建文旅 AI 助手。我只回答福建旅游、非遗、景点和路线规划相关的问题，还能结合你的收藏、浏览与偏好为你推荐专属路线。请问你想去哪里？');
+        if (options && options.routePrompt) {
+            const routePrompt = decodeURIComponent(options.routePrompt);
+            setTimeout(() => {
+                this.setData({ inputValue: routePrompt }, () => this.onSend());
+            }, 200);
+        }
     },
 
     onUnload() {
